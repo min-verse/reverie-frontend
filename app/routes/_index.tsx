@@ -1,41 +1,46 @@
-import type { MetaFunction } from "@remix-run/node";
+import { json, type MetaFunction, type LoaderFunctionArgs } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "New Remix App" },
-    { name: "description", content: "Welcome to Remix!" },
+    { title: "Reverie Frontend" },
+    { name: "description", content: "Welcome to Reverie!" },
   ];
 };
 
+export const loader = async({
+  request,
+}: LoaderFunctionArgs ) => {
+  const stories = [{
+    title: "The Giving Tree",
+    author: "Shel Silverstein"
+  }, {
+    title: "Journey to the West",
+    author: "Wu Cheng'en"
+  }];
+
+  // const stories = null;
+  return json({ stories });
+}
+
 export default function Index() {
+  const { stories } = useLoaderData<typeof loader>();
+
   return (
-    <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.8" }}>
-      <h1>Welcome to Remix</h1>
-      <ul>
-        <li>
-          <a
-            target="_blank"
-            href="https://remix.run/tutorials/blog"
-            rel="noreferrer"
-          >
-            15m Quickstart Blog Tutorial
-          </a>
-        </li>
-        <li>
-          <a
-            target="_blank"
-            href="https://remix.run/tutorials/jokes"
-            rel="noreferrer"
-          >
-            Deep Dive Jokes App Tutorial
-          </a>
-        </li>
-        <li>
-          <a target="_blank" href="https://remix.run/docs" rel="noreferrer">
-            Remix Docs
-          </a>
-        </li>
-      </ul>
+    <div className="parent-container">
+      <div className="smaller-child-column">
+        {stories && stories.length ? stories.map((story)=>{
+          return (
+            <ul>
+              <h2>Title: {story.title}</h2>
+              <h3>Author: {story.author}</h3>
+            </ul>
+          )
+        }) : <p>No stories started yet</p>}
+      </div>
+      <div className="smaller-child-column">
+
+      </div>
     </div>
   );
 }
