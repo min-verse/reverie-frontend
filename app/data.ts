@@ -1,4 +1,5 @@
 export interface Story {
+    id: Number,
     title: String,
     subtitle: String,
     plot: String,
@@ -11,6 +12,7 @@ export interface Story {
 
 export const stories: Array<Story> = [
     {
+        id: 1,
         title: "Hay Un Bicho En Mis Pantalones",
         subtitle: "Ayudame Por Favor",
         plot: `Un dia, Jorge se encontro en un dilema. Hay un bicho en sus pantalones. Pero eso no es todo. 
@@ -26,6 +28,7 @@ export const stories: Array<Story> = [
         owner: "Jorge Giovanna"
     },
     {
+        id: 2,
         title: "Three Stars in a Pool of Many",
         subtitle: "A Journey of Many Nothings and a Bit of Everything",
         plot: `If she could leave this town, then she would. 19 year old Maxie looks out her window beyond the horizon, 
@@ -42,6 +45,7 @@ export const stories: Array<Story> = [
         owner: "Leah Peng"
     },
     {
+        id: 3,
         title: "That's My Folder!",
         subtitle: "Return the folder!",
         plot: `Morning walks, coffee, and a languid after-work wallow on the couch. There's little escape for
@@ -58,3 +62,13 @@ export const stories: Array<Story> = [
         owner: "Asifa Sajid"
     },
 ];
+
+export async function getStory(query?: Number | null){
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+    return stories.find((story)=> story.id === query);
+}
+
+export async function getStories(){
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+    return stories;
+}
