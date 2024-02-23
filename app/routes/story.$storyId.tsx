@@ -1,7 +1,7 @@
 import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
 import invariant from "tiny-invariant";
 
-import { Link, useLoaderData, useMatches } from "@remix-run/react";
+import { useLoaderData, useMatches } from "@remix-run/react";
 import { getStory } from "~/data";
 
 export async function loader({
@@ -32,7 +32,6 @@ export default function Story(){
             <h3>{story.summary}</h3>
             <h6>Written by: {story.owner}</h6>
             <p>{story.plot}</p>
-            <Link to={`/story/${story.id}`}>Go to {story.title} Page</Link>
         </div>
     );
 }
