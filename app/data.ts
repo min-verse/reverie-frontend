@@ -64,11 +64,11 @@ export const stories: Array<Story> = [
 ];
 
 export async function getStory(query?: Number | null){
-    await new Promise((resolve) => setTimeout(resolve, 3000));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
     return stories.find((story)=> story.id === query);
 }
 
 export async function getStories(){
-    await new Promise((resolve) => setTimeout(resolve, 3000));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
     return stories;
 }

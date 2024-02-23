@@ -25,7 +25,22 @@ export default function HomeIndex() {
 
   return (
     <div className="parent-container" style={{display: 'flex', flexDirection: 'row'}}>
-      <h1>No Story Selected Yet</h1>
+      <div className="smaller-child-column">
+        {stories && stories.length ? stories.map((story)=>{
+          return (
+            <ul key={story.id}>
+              <NavLink to={`/home/${story.id}`}>Go to <em>{story.title}</em> Page</NavLink>
+              <h2>Title: {story.title}</h2>
+              <h3>Author: {story.owner}</h3>
+              <p>Summary: {story.summary}</p>
+            </ul>
+          )
+        }) : <p>No stories started yet</p>}
+      </div>
+      <div id="detail" className="smaller-child-column" style={{backgroundColor: 'lightblue'}}>
+        <p>Story Listed Here</p>
+        <Outlet />
+      </div>
     </div>
   );
 }

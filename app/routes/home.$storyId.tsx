@@ -1,7 +1,7 @@
 import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
 import invariant from "tiny-invariant";
 
-import { useLoaderData } from "@remix-run/react";
+import { useLoaderData, useMatches } from "@remix-run/react";
 import { getStory } from "~/data";
 
 export async function loader({
@@ -22,9 +22,11 @@ export async function loader({
 
 export default function Story(){
     const { story } = useLoaderData<typeof loader>();
+    const matches = useMatches();
 
     return (
-        <div>
+        <div id="contact">
+            <p>{matches[0].pathname}</p>
             <h1>{story.title}</h1>
             <h2>{story.subtitle}</h2>
             <h3>{story.summary}</h3>
