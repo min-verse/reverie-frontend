@@ -9,7 +9,13 @@ export async function loader({
     request,
 }: LoaderFunctionArgs){
     const storyId = params.storyId;
+    invariant(storyId, 'Missing storyId');
+
     const story = await getStory(Number(storyId));
+
+    if(!story){
+        throw new Response("Not Found", { status: 404 });
+    }
 
     return json({ story })
 }
