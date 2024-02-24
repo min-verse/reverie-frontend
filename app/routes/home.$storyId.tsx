@@ -26,7 +26,6 @@ export default function Story(){
 
     return (
         <div id="contact">
-            <p>{matches[0].pathname}</p>
             <h1>{story.title}</h1>
             <h2>{story.subtitle}</h2>
             <h3>{story.summary}</h3>

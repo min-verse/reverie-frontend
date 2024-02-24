@@ -10,6 +10,12 @@ export interface Story {
     owner: String
 }
 
+export interface Character {
+    id: Number,
+    storyId: Number,
+    name: String,
+}
+
 export const stories: Array<Story> = [
     {
         id: 1,
@@ -61,14 +67,132 @@ export const stories: Array<Story> = [
         other_medium: "N/A",
         owner: "Asifa Sajid"
     },
+    {
+        id: 4,
+        title: "If This Be the End",
+        subtitle: "Look past the omega",
+        plot: `In the beginning there was light. Then after that, the dark. Well, not that fast. Millions of years
+                passed before the universe cooled to a point of forming distinct structures like galaxies and it wouldn't
+                be for another few billion years before we humans were even a concept. But then after that, what lies
+                beyond the death of the universe. Let's peek into the future by following these post-human species.`,
+        summary: "Peer past the looking glass of the life of the universe",
+        privacy: "public",
+        medium: "Novella",
+        other_medium: "N/A",
+        owner: "Sasha Asimov"
+    },
+    {
+        id: 5,
+        title: "Shanghai Shenanigans",
+        subtitle: "In this city of East meets West, where will Xu find his way",
+        plot: `Xu Tang is the best at what he does: winging it. So when his parents decide to
+            teach him a lesson by sending him to Shanghai, he thought he could get by just fine
+            without a plan. However fate had something else in store for him as he runs into
+            Xiao Long who drags him into a world of mischief and...the divine!?`,
+        summary: "Xu Tang lands himself in Shanghai amongst the ancient divine",
+        privacy: "private",
+        medium: "Novel",
+        other_medium: "N/A",
+        owner: "Li Pao"
+    },
 ];
+
+const characters: Array<Character> = [
+    {
+        id:1,
+        storyId:1,
+        name: 'Jorge Castillo'
+    },
+    {
+        id:2,
+        storyId:1,
+        name: 'La Morena'
+    },
+    {
+        id:3,
+        storyId:1,
+        name: 'Maria Lopez'
+    },
+    {
+        id:4,
+        storyId:2,
+        name: 'Maxie Unova'
+    },
+    {
+        id:5,
+        storyId:2,
+        name: 'Patty Unova'
+    },
+    {
+        id:6,
+        storyId:2,
+        name: 'Jeremy Alwine'
+    },
+    {
+        id:7,
+        storyId:3,
+        name: 'Nour Sajid'
+    },
+    {
+        id:8,
+        storyId:3,
+        name: 'Gui Lee'
+    },{
+        id:9,
+        storyId:3,
+        name: 'Mansherry Frank'
+    },
+    {
+        id:10,
+        storyId:2,
+        name: 'Richard Wright'
+    },
+    {
+        id:11,
+        storyId:2,
+        name: 'Leonard Kline'
+    },
+    {
+        id:12,
+        storyId:3,
+        name: 'Ritwik Biswas'
+    },
+    {
+        id:13,
+        storyId:3,
+        name: 'Joey Tran'
+    },
+    {
+        id:14,
+        storyId:1,
+        name: 'Juan Reyes'
+    },
+    {
+        id:15,
+        storyId:2,
+        name: 'Jake Bryan'
+    },
+]
 
 export async function getStory(query?: Number | null){
     await new Promise((resolve) => setTimeout(resolve, 1000));
-    return stories.find((story)=> story.id === query);
+    const story = stories.find((story)=> story.id === query);
+    if(!story){
+        throw new Response("Not Found", { status: 404 });
+    }
+    return { ...story, characters: await getCharacters(query) }
 }
 
 export async function getStories(){
     await new Promise((resolve) => setTimeout(resolve, 1000));
     return stories;
+}
+
+export async function getCharacters(query?: Number | null){
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    const story = stories.find((story)=> story.id === query);
+    if(!story){
+        throw new Response("Not Found", { status: 404 });
+    }
+    return characters.filter((character)=> character.storyId === story.id);
 }

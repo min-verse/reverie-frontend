@@ -1,7 +1,7 @@
 import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
 import invariant from "tiny-invariant";
 
-import { useLoaderData, useMatches } from "@remix-run/react";
+import { useLoaderData, useMatches, Link } from "@remix-run/react";
 import { getStory } from "~/data";
 
 export async function loader({
@@ -17,6 +17,8 @@ export async function loader({
         throw new Response("Not Found", { status: 404 });
     }
 
+    console.log(story);
+
     return json({ story })
 }
 
@@ -26,12 +28,22 @@ export default function Story(){
 
     return (
         <div id="contact">
-            <p>{matches[0].pathname}</p>
+            <Link to="/home">Go Back to Home</Link>
             <h1>{story.title}</h1>
             <h2>{story.subtitle}</h2>
             <h3>{story.summary}</h3>
             <h6>Written by: {story.owner}</h6>
             <p>{story.plot}</p>
+            <h5>
+                Characters: 
+                {story.characters ? 
+                    story.characters.map((character)=>{
+                        return (
+                            <p>{character.name}</p>
+                        )
+                    })
+                : <span><em>No characters yet</em></span>}
+            </h5>
         </div>
     );
 }
