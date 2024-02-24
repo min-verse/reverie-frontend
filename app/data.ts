@@ -172,6 +172,31 @@ const characters: Array<Character> = [
         storyId:2,
         name: 'Jake Bryan'
     },
+    {
+        id: 16,
+        storyId: 4,
+        name: 'Post-Human #1'
+    },
+    {
+        id: 17,
+        storyId: 4,
+        name: 'Post-Human #2'
+    },
+    {
+        id: 18,
+        storyId: 5,
+        name: "Xu Tang"
+    },
+    {
+        id: 19,
+        storyId: 5,
+        name: "Xiao Long"
+    },
+    {
+        id: 20,
+        storyId: 3,
+        name: "Misaki Leung"
+    }
 ]
 
 export async function getStory(query?: Number | null){

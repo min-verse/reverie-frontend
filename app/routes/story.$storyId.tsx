@@ -36,14 +36,15 @@ export default function Story(){
             <p>{story.plot}</p>
             <h5>
                 Characters: 
-                {story.characters ? 
+                {story.characters && story.characters.length ? 
                     story.characters.map((character)=>{
                         return (
                             <p>{character.name}</p>
                         )
                     })
-                : <span><em>No characters yet</em></span>}
+                : <span> <em>No characters yet</em></span>}
             </h5>
+            <Link to={`/story/${story.id}/edit`}>Edit Story</Link>
         </div>
     );
 }
