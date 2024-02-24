@@ -1,7 +1,6 @@
 import { json, type MetaFunction, type LoaderFunctionArgs } from "@remix-run/node";
 import { Link, NavLink, useLoaderData, useMatches } from "@remix-run/react";
 import { getStories } from "~/data";
-import { Outlet } from "@remix-run/react";
 
 export const meta: MetaFunction = () => {
   return [
