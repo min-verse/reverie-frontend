@@ -3,6 +3,8 @@ import invariant from "tiny-invariant";
 
 import { useLoaderData, useMatches, Link } from "@remix-run/react";
 import { getStory } from "~/data";
+import { user } from "~/data";
+import ReverieNav from "~/components/ReverieNav";
 
 export async function loader({
     params,
@@ -19,7 +21,7 @@ export async function loader({
 
     console.log(story);
 
-    return json({ story })
+    return json({ story, user })
 }
 
 export default function Story(){
@@ -28,6 +30,7 @@ export default function Story(){
 
     return (
         <div id="contact">
+            <ReverieNav user={user} />
             <Link to="/home">Go Back to Home</Link>
             <h1>{story.title}</h1>
             <h2>{story.subtitle}</h2>

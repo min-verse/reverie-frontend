@@ -8,12 +8,28 @@ export interface Story {
     medium: String,
     other_medium: String,
     owner: String
-}
+};
 
 export interface Character {
     id: Number,
     storyId: Number,
     name: String,
+};
+
+export interface User {
+    id: Number,
+    email: String,
+    username: String,
+    picUrl: String,
+    password: String
+}
+
+export const user: User = {
+    id: 1,
+    email: "johndoe@aol.com",
+    username: "xX__blaze__Xx",
+    picUrl: "https://avatarfiles.alphacoders.com/240/240756.png",
+    password: "123"
 }
 
 export const stories: Array<Story> = [
@@ -28,9 +44,9 @@ export const stories: Array<Story> = [
             son los primeros en descubrir algo nuevo. ¿Las malas noticias? 
             Todos los pantalones de Jorge están terminados.`,
         summary: "Ayudale por pavor. Son las pantalones mas favorita de el.",
-        privacy: "public",
-        medium: "Novella",
-        other_medium: "Comic",
+        privacy: "pub",
+        medium: "na",
+        other_medium: "cc",
         owner: "Jorge Giovanna"
     },
     {
@@ -45,9 +61,9 @@ export const stories: Array<Story> = [
             Can she survive the experience? And how will she go back? Will she even want to?`,
         summary: `Maxie Friedman has been stuck in the same town for almost 20 years. 
         She finally finds something that whisks her away, but what will become of her now?`,
-        privacy: "private",
-        medium: "Novel",
-        other_medium: "Novella",
+        privacy: "pri",
+        medium: "nv",
+        other_medium: "na",
         owner: "Leah Peng"
     },
     {
@@ -62,9 +78,9 @@ export const stories: Array<Story> = [
             is in 5 hours! How will she find relief now!? Join Nour as she investigates the wacky, zany events that
             still survive in real life as she breaks into a mad dash across the city to find out: Who took her folder!?`,
         summary: "Follow Nour on her adventure!",
-        privacy: "public",
-        medium: "Short Story",
-        other_medium: "N/A",
+        privacy: "pub",
+        medium: "sh",
+        other_medium: "ot",
         owner: "Asifa Sajid"
     },
     {
@@ -76,9 +92,9 @@ export const stories: Array<Story> = [
                 be for another few billion years before we humans were even a concept. But then after that, what lies
                 beyond the death of the universe. Let's peek into the future by following these post-human species.`,
         summary: "Peer past the looking glass of the life of the universe",
-        privacy: "public",
-        medium: "Novella",
-        other_medium: "N/A",
+        privacy: "pub",
+        medium: "na",
+        other_medium: "ot",
         owner: "Sasha Asimov"
     },
     {
@@ -90,9 +106,9 @@ export const stories: Array<Story> = [
             without a plan. However fate had something else in store for him as he runs into
             Xiao Long who drags him into a world of mischief and...the divine!?`,
         summary: "Xu Tang lands himself in Shanghai amongst the ancient divine",
-        privacy: "private",
-        medium: "Novel",
-        other_medium: "N/A",
+        privacy: "pri",
+        medium: "sh",
+        other_medium: "ot",
         owner: "Li Pao"
     },
 ];
@@ -197,7 +213,7 @@ const characters: Array<Character> = [
         storyId: 3,
         name: "Misaki Leung"
     }
-]
+];
 
 export async function getStory(query?: Number | null){
     await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -206,12 +222,12 @@ export async function getStory(query?: Number | null){
         throw new Response("Not Found", { status: 404 });
     }
     return { ...story, characters: await getCharacters(query) }
-}
+};
 
 export async function getStories(){
     await new Promise((resolve) => setTimeout(resolve, 1000));
     return stories;
-}
+};
 
 export async function getCharacters(query?: Number | null){
     await new Promise((resolve) => setTimeout(resolve, 100));
@@ -220,4 +236,4 @@ export async function getCharacters(query?: Number | null){
         throw new Response("Not Found", { status: 404 });
     }
     return characters.filter((character)=> character.storyId === story.id);
-}
+};

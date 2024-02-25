@@ -1,8 +1,10 @@
 import { json, type MetaFunction, type LoaderFunctionArgs } from "@remix-run/node";
-import { NavLink, useLoaderData, useMatches } from "@remix-run/react";
+import { Link, NavLink, useLoaderData, useMatches } from "@remix-run/react";
 import { getStories } from "~/data";
 import { Outlet } from "@remix-run/react";
 import { useEffect, useState } from "react";
+import { user } from "~/data";
+import ReverieNav from "~/components/ReverieNav";
 
 export const meta: MetaFunction = () => {
   return [
@@ -17,7 +19,7 @@ export const loader = async({
   const stories = await getStories();
 
   // const stories = null;
-  return json({ stories });
+  return json({ stories, user });
 }
 
 export default function HomeIndex() {
@@ -41,9 +43,7 @@ export default function HomeIndex() {
 
   return (
     <>
-        <header style={{backgroundColor: 'yellow'}}>
-            <h1>Navigation Bar</h1>
-        </header>
+        <ReverieNav user={user} />
         <div className="parent-container" style={{display: 'flex', flexDirection: 'row'}}>
         <div className="smaller-child-column">
             <input 
