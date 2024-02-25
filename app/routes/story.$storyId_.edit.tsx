@@ -3,6 +3,7 @@ import { getStory } from "~/data";
 import { Form, useNavigate } from "@remix-run/react";
 import { useLoaderData } from "@remix-run/react";
 import invariant from "tiny-invariant";
+import Tiptap from "~/components/Tiptap";
 
 export async function loader({
     params,
@@ -67,7 +68,17 @@ export default function StoryEdit(){
                         rows={4}
                         cols={40}
                         />
+                    
                 </label>
+                <p>
+                    <label>
+                        <p>Text Editor</p>
+                        <Tiptap
+                            key="plot-tiptap"
+                            content={story.plot}
+                        />
+                    </label>
+                </p>
                 <label>
                     <span>Medium</span>
                     <select name="medium" defaultValue={story.medium}>
