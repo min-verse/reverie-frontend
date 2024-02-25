@@ -2,7 +2,7 @@
 
 ## Development
 
-From your terminal:
+From the terminal:
 
 ```sh
 npm run dev
