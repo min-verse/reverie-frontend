@@ -54,7 +54,14 @@ export default function HomeIndex() {
             {allStories && allStories.length ? allStories.map((story)=>{
             return (
                 <ul key={story.id}>
-                <NavLink to={`/home/${story.id}`}>Go to <em>{story.title}</em> Page</NavLink>
+                <NavLink 
+                  to={`/home/${story.id}`}
+                  className={({isActive})=>
+                    isActive ? 'bg-green-500 font-bold' : 'bg-blue-200 font-thin'
+                  }
+                  >
+                    Go to <em>{story.title}</em> Page
+                </NavLink>
                 <h2>Title: {story.title}</h2>
                 <h3>Author: {story.owner}</h3>
                 <p>Summary: {story.summary}</p>

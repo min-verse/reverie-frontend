@@ -17,6 +17,12 @@ export default function ReverieNav({ user }: ReverieNavProps){
               to="/profile"
               style={{float:'right'}}
               >
+              <img
+                style={{borderRadius:50}}
+                width={100}
+                height={100}
+                src={`https://avatarfiles.alphacoders.com/240/240756.png`} 
+              />
               {user.username}
             </Link>
         </header>
