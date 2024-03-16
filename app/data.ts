@@ -237,3 +237,44 @@ export async function getCharacters(query?: Number | null){
     }
     return characters.filter((character)=> character.storyId === story.id);
 };
+
+export async function authenticate(session: String){
+    const response = await fetch('http://localhost:8000/api_auth/session/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+
+    return response;
+};
+
+export async function login(username: String, password: String){
+    const csrf_token = await setCsrfToken();
+
+    const response = fetch('http://localhost:8000/api_auth/login/',{
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrf_token,
+        },
+        body: JSON.stringify({
+            username: username,
+            password: password
+        })
+    });
+
+    return response;
+};
+
+export async function logout(){
+    const response = await fetch('http://localhost:8000/api_auth/logout/',{
+        method: 'DELETE'
+    });
+
+    return response;
+}
+
+export async function setCsrfToken(){
+    const token = await fetch('http://localhost:8000/api_auth/set_csrf');
+    return String(token);
+}
