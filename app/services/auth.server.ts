@@ -2,7 +2,10 @@ import { Authenticator } from "remix-auth";
 import { sessionStorage } from "./session.server";
 import { FormStrategy } from "remix-auth-form";
 import { Form } from "@remix-run/react";
+
 import { login } from "~/data";
+
+const setCookie = require('set-cookie-parser');
 
 // TODO: Define a type for Authenticator like Authenticator<Type>
 let authenticator =  new Authenticator(sessionStorage);
@@ -27,6 +30,15 @@ authenticator.use(
 
         const parsedResponseCookies = setCookie.parse(
             setCookie.splitCookiesString(setCookieHeader)
+        );
+
+        console.log(`This is the parsed cookie` + parsedResponseCookies);
+
+        // TODO: What structure is this cookie
+        const sessionIdCookie = parsedResponseCookies.find(
+            (cookie: {
+                name: string,
+            }) => cookie.name === 'sessionid'
         );
 
         return credentials;
