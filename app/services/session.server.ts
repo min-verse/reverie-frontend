@@ -3,7 +3,7 @@ import { createCookieSessionStorage } from "@remix-run/node";
 // Exporting the whole sessionStorage Object
 export let sessionStorage = createCookieSessionStorage({
     cookie: {
-        name: "sessionId",
+        name: "exampleSession",
         sameSite: "lax", // in production, this should be 'Strict'
         path: "/",
         httpOnly: true, // Enabling only HTTP Cookies

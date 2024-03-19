@@ -1,3 +1,5 @@
+import { Cookie, isCookie } from "@remix-run/node";
+
 export interface Story {
     id: Number,
     title: String,
@@ -251,17 +253,18 @@ export async function authenticate(session: String){
 
 export async function login(username: String, password: String){
     const csrf_token = await setCsrfToken();
+    console.log(`Reached here 1.2: ${csrf_token}`);
 
-    const response = fetch('http://localhost:8000/api_auth/login/',{
+    const response = await fetch('http://localhost:8000/api_auth/login/',{
         method: 'POST',
         headers: {
-            'X-CSRFToken': csrf_token,
+            'X-CSRFToken': String(getCookie('csrftoken')),
         },
         body: JSON.stringify({
             username: username,
             password: password
         })
-    });
+    }).catch((err)=> console.log(err.message));
 
     return response;
 };
@@ -275,6 +278,31 @@ export async function logout(){
 }
 
 export async function setCsrfToken(){
-    const token = await fetch('http://localhost:8000/api_auth/set_csrf');
-    return String(token);
+    const token = await fetch('http://localhost:8000/api_auth/set_csrf')
+
+    // SET THE CSRFTOKEN
+
+    const setCookieHeader = token.headers.get('Set-Cookie');
+
+    if(!setCookieHeader){
+        throw new Error('No session or cookie found for Set-Cookie, unable to authenticate');
+    }
+
+    return setCookieHeader;
+}
+
+function getCookie(name: string) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
 }

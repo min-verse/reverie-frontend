@@ -6,7 +6,7 @@ import { authenticator } from "~/services/auth.server";
 export const loader = async({
     request,
 }: LoaderFunctionArgs)=>{
-
+    return null;
 }
 
 export const action = async({
@@ -54,7 +54,7 @@ export default function Login(){
                     <input
                         name="password"
                         placeholder="Password"
-                        type="text"
+                        type="password"
                     />
                 </label>
                 <button type="submit">Login</button>
