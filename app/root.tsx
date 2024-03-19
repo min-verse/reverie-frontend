@@ -26,6 +26,14 @@ export const loader = async ({
     request.headers.get('Cookie')
   );
 
+  if(session){
+    console.log(`Found a session: ${session}`);
+    for(const key in session){
+      console.log(`Session key ${key}`);
+    }
+    console.log(`Representing this as a string: ${JSON.stringify(session)}`);
+  }
+
   if(session.get('csrftoken')){
     console.log(`Got the csrftoken and it is ${session.get('csrftoken')}`);
   }
