@@ -1,3 +1,7 @@
+import { ActionFunctionArgs, Cookie, LoaderFunctionArgs, isCookie } from "@remix-run/node";
+import setCookie from 'set-cookie-parser';
+import { getSession } from "./services/session.server";
+
 export interface Story {
     id: Number,
     title: String,
@@ -237,3 +241,94 @@ export async function getCharacters(query?: Number | null){
     }
     return characters.filter((character)=> character.storyId === story.id);
 };
+
+export async function authenticate(session: String){
+    const response = await fetch('http://localhost:8000/api_auth/session/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+
+    return response;
+};
+
+export async function login(username: String, password: String, request: Request){
+    const csrfToken = await getCsrfToken(request);
+    console.log(`Reached here 1.2: ${csrfToken}`);
+
+    const response = await fetch('http://localhost:8000/api_auth/login/',{
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            // 'X-CSRFToken': csrfToken,
+        },
+        body: JSON.stringify({
+            username: username,
+            password: password
+        })
+    }).catch((err)=> console.log(err.message));
+
+    return response;
+};
+
+export async function logout(){
+    const response = await fetch('http://localhost:8000/api_auth/logout/',{
+        method: 'DELETE'
+    });
+
+    return response;
+}
+
+export async function retrieveCsrfToken(){
+    const token = await fetch('http://localhost:8000/api_auth/set_csrf')
+
+    // SET THE CSRFTOKEN
+
+    const setCookieHeader = token.headers.get('Set-Cookie');
+
+    if(!setCookieHeader){
+        throw new Error('No session or cookie found for Set-Cookie, unable to authenticate');
+    }
+
+    const response = setCookie.parse(setCookieHeader);
+    const tokenItem = response.find((item)=> item['name']=='csrftoken');
+
+    if(!tokenItem){
+        throw new Error('No csrftoken was found on the response');
+    }
+
+    return tokenItem['value'];
+}
+
+export async function getCsrfToken(request: Request){
+    const session = await getSession(
+        request.headers.get('Cookie')
+    );
+
+    const token = session.get('csrftoken');
+
+    if(!token){
+        throw new Error('No csrftoken was found in the current session');
+    }
+
+    console.log(`The getCsrfToken token here: ${token}`)
+
+    return token;
+}
+
+function getCookie(name: string) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
