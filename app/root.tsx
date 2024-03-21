@@ -11,7 +11,7 @@ import {
   json,
 } from "@remix-run/react";
 import stylesheet from "~/tailwind.css";
-import { setCsrfToken } from "./data";
+import { retrieveCsrfToken } from "./data";
 import { commitSession, getSession } from "./services/session.server";
 
 export const links: LinksFunction = () => [
@@ -26,16 +26,9 @@ export const loader = async ({
     request.headers.get('Cookie')
   );
 
-  if(session){
-    console.log(`Found a session: ${session}`);
-    for(const key in session){
-      console.log(`Session key ${key}`);
-    }
-    console.log(`Representing this as a string: ${JSON.stringify(session)}`);
-  }
-
-  if(session.get('csrftoken')){
-    console.log(`Got the csrftoken and it is ${session.get('csrftoken')}`);
+  if(!session.get('csrftoken')){
+    const token = await retrieveCsrfToken();
+    session.set('csrftoken', token);
   }
 
   const data = { error: session.get('error') }

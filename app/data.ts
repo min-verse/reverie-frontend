@@ -1,4 +1,6 @@
-import { Cookie, isCookie } from "@remix-run/node";
+import { ActionFunctionArgs, Cookie, LoaderFunctionArgs, isCookie } from "@remix-run/node";
+import setCookie from 'set-cookie-parser';
+import { getSession } from "./services/session.server";
 
 export interface Story {
     id: Number,
@@ -251,14 +253,15 @@ export async function authenticate(session: String){
     return response;
 };
 
-export async function login(username: String, password: String){
-    const csrf_token = await setCsrfToken();
-    console.log(`Reached here 1.2: ${csrf_token}`);
+export async function login(username: String, password: String, request: Request){
+    const csrfToken = await getCsrfToken(request);
+    console.log(`Reached here 1.2: ${csrfToken}`);
 
     const response = await fetch('http://localhost:8000/api_auth/login/',{
         method: 'POST',
         headers: {
-            'X-CSRFToken': String(getCookie('csrftoken')),
+            'Content-Type': 'application/json',
+            // 'X-CSRFToken': csrfToken,
         },
         body: JSON.stringify({
             username: username,
@@ -277,7 +280,7 @@ export async function logout(){
     return response;
 }
 
-export async function setCsrfToken(){
+export async function retrieveCsrfToken(){
     const token = await fetch('http://localhost:8000/api_auth/set_csrf')
 
     // SET THE CSRFTOKEN
@@ -288,7 +291,30 @@ export async function setCsrfToken(){
         throw new Error('No session or cookie found for Set-Cookie, unable to authenticate');
     }
 
-    return setCookieHeader;
+    const response = setCookie.parse(setCookieHeader);
+    const tokenItem = response.find((item)=> item['name']=='csrftoken');
+
+    if(!tokenItem){
+        throw new Error('No csrftoken was found on the response');
+    }
+
+    return tokenItem['value'];
+}
+
+export async function getCsrfToken(request: Request){
+    const session = await getSession(
+        request.headers.get('Cookie')
+    );
+
+    const token = session.get('csrftoken');
+
+    if(!token){
+        throw new Error('No csrftoken was found in the current session');
+    }
+
+    console.log(`The getCsrfToken token here: ${token}`)
+
+    return token;
 }
 
 function getCookie(name: string) {
