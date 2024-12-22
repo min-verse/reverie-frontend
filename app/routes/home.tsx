@@ -5,6 +5,7 @@ import { Outlet } from "@remix-run/react";
 import { useEffect, useState } from "react";
 import { user } from "~/data";
 import ReverieNav from "~/components/ReverieNav";
+import { requireUserSession } from "~/services/session.server";
 
 export const meta: MetaFunction = () => {
   return [
@@ -16,6 +17,7 @@ export const meta: MetaFunction = () => {
 export const loader = async({
   request,
 }: LoaderFunctionArgs ) => {
+  await requireUserSession(request);
   const stories = await getStories();
 
   // const stories = null;
