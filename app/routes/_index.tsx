@@ -1,7 +1,7 @@
 import { json, type ActionFunctionArgs, type MetaFunction, type LoaderFunctionArgs } from "@remix-run/node";
 import { Form, Link, NavLink, useLoaderData, useMatches, redirect, useActionData } from "@remix-run/react";
 import { getStories, getCurrentUser, retrieveCsrfToken } from "~/data";
-import { commitSession, getSession } from "~/services/session.server";
+import { commitSession, getSession, requireUserSession } from "~/services/session.server";
 import { useState } from "react";
 
 export const meta: MetaFunction = () => {
@@ -14,9 +14,7 @@ export const meta: MetaFunction = () => {
 export const loader = async ({
   request,
 }: LoaderFunctionArgs) => {
-  const session = await getSession(
-    request.headers.get('Cookie')
-  );
+  const session = await requireUserSession(request);
 
   // if(!session.get('csrftoken')){
   //   const token = await retrieveCsrfToken();

@@ -2,21 +2,22 @@ import { User } from "~/data";
 import { Form, Link } from "@remix-run/react";
 import { redirect } from "@remix-run/node";
 import { ActionFunctionArgs } from "@remix-run/node";
-import { getSession, commitSession } from "~/services/session.server";
+import { getSession, commitSession, destroySession } from "~/services/session.server";
 
 interface ReverieNavProps {
     user: User
 }
 
-export async function action({ request }: ActionFunctionArgs) {
-  const cookie = request.headers.get("cookie");
-  const session = await getSession(cookie);
-  session.unset("credentials");
-
+export const action = async ({ request }: ActionFunctionArgs) => {
+  console.log("Reached the beginning of the action method");
+  const session = await getSession(
+    request.headers.get("Cookie")
+  );
+  console.log("Reached this part of the logout action");
   // TODO: Update this to destroySession
-  return redirect("/", {
+  return redirect("/login", {
     headers: {
-      "Set-Cookie": await commitSession(session),
+      "Set-Cookie": await destroySession(session),
     },
   });
 }

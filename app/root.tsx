@@ -22,6 +22,17 @@ export const links: LinksFunction = () => [
   { rel: "stylesheet", href: stylesheet },
 ];
 
+export async function loader({ request }: LoaderFunctionArgs){
+  const session = await getSession(
+    request.headers.get('Cookie')
+  );
+
+  console.log(`This is the session's id: ${session.get('sessionid')}`);
+  console.log(`This is the csrftoken: ${session.get('csrftoken')}`);
+
+  return null;
+}
+
 // export function Layout({ children }: { children: React.ReactNode }) {
 //   return (
 //     <html lang="en">

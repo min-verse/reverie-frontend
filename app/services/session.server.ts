@@ -15,9 +15,9 @@ export let sessionStorage = createCookieSessionStorage({
 export let { getSession, commitSession, destroySession } = sessionStorage;
 
 export async function requireUserSession(request: Request){
-    const cookies = request.headers.get('Cookie');
-
-    const session = await getSession(cookies);
+    const session = await getSession(
+        request.headers.get("Cookie")
+      );
 
     if(!session.has('sessionid')){
         throw redirect('/login');
