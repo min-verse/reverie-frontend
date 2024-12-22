@@ -1,4 +1,4 @@
-import { createCookieSessionStorage } from "@remix-run/node";
+import { createCookieSessionStorage, redirect } from "@remix-run/node";
 
 // Exporting the whole sessionStorage Object
 export let sessionStorage = createCookieSessionStorage({
@@ -13,3 +13,15 @@ export let sessionStorage = createCookieSessionStorage({
 });
 
 export let { getSession, commitSession, destroySession } = sessionStorage;
+
+export async function requireUserSession(request: Request){
+    const cookies = request.headers.get('Cookie');
+
+    const session = await getSession(cookies);
+
+    if(!session.has('sessionid')){
+        throw redirect('/login');
+    }
+
+    return session;
+}

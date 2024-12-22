@@ -254,8 +254,8 @@ export async function authenticate(session: String){
 };
 
 export async function login(username: String, password: String, request: Request){
-    const csrfToken = await getCsrfToken(request);
-    console.log(`Reached here 1.2: ${csrfToken}`);
+    // const csrfToken = await getCsrfToken(request);
+    // console.log(`Reached here 1.2: ${csrfToken}`);
 
     const response = await fetch('http://localhost:8000/api_auth/login/',{
         method: 'POST',
@@ -315,6 +315,26 @@ export async function getCsrfToken(request: Request){
     console.log(`The getCsrfToken token here: ${token}`)
 
     return token;
+}
+
+export async function getCurrentUser(request: Request){
+    const session = await getSession(
+        request.headers.get('Cookie')
+      );
+
+    const userResponse = await fetch('http://localhost:8000/api_auth/whoami/'
+        ,{
+            headers: {
+              Cookie: Object.entries(session.data)
+                    .map(([key, value]) => `${key}=${value}`)
+                    .join('; '),
+              }
+          })
+      .then((res)=>res.json())
+      .then((data)=>data)
+      .catch((err)=>err.message);
+    console.log(userResponse);
+    return userResponse['username'];
 }
 
 function getCookie(name: string) {

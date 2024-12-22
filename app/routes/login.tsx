@@ -12,6 +12,21 @@ import { commitSession, getSession } from "~/services/session.server";
 export const loader = async({
     request,
 }: LoaderFunctionArgs)=>{
+    const session = await getSession(
+        request.headers.get('Cookie')
+      );
+    
+      // if(!session.get('csrftoken')){
+      //   const token = await retrieveCsrfToken();
+      //   session.set('csrftoken', token);
+      // }
+    
+    const authenticated = session.get('sessionid') ? { message: `You're authenticated!` } : null;
+    if(authenticated){
+        console.log(`Session has session id of this on login page: ${session.get('sessionid')}`)
+        return redirect('/home');
+    }
+
     return null;
 }
 
@@ -39,6 +54,8 @@ export const action = async({
     const response = await login(username, password, request);
     if(response){
         const text = await response.text();
+        console.log("Here are the headers");
+        console.log(...response.headers);
         console.log(`This is the response status: ${response.status}`);
         console.log(`The Response says this: ${text}`);
     }
@@ -57,7 +74,7 @@ export const action = async({
 
     const parsedResponseCookies = setCookie.parse(setCookie.splitCookiesString(setCookieHeader));
     const sessionIdCookie = parsedResponseCookies.find((cookie) => cookie.name === 'sessionid');
-    
+
     if(!sessionIdCookie){
         console.log(`No sessionid found in the response's Set-Cookie header`);
         return redirect('/unauthenticated');
