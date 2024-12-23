@@ -42,6 +42,11 @@ export default function ReverieNav({ user }: ReverieNavProps){
               />
               {user.username}
             </Link>
+            <Link
+              to={'/'}
+            >
+              Return to Index Route
+            </Link>
             <Form method="post" action="/logout">
               <button type="submit" value="logout">
                 Logout

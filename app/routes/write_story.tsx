@@ -1,41 +1,47 @@
-import { ActionFunctionArgs, LoaderFunctionArgs, json, redirect } from "@remix-run/node";
-import { getStory } from "~/data";
-import { Form, useNavigate } from "@remix-run/react";
-import { useLoaderData } from "@remix-run/react";
-import invariant from "tiny-invariant";
+import { json, type MetaFunction, type LoaderFunctionArgs, ActionFunctionArgs } from "@remix-run/node";
+import { Link, NavLink, useLoaderData, useMatches, useNavigate } from "@remix-run/react";
+import { getStories } from "~/data";
+import { Outlet } from "@remix-run/react";
+import { useEffect, useState } from "react";
+import { user } from "~/data";
+import ReverieNav from "~/components/ReverieNav";
+import { requireUserSession } from "~/services/session.server";
+import { Form } from "@remix-run/react";
 import Tiptap from "~/components/Tiptap";
 
-export async function loader({
-    params,
-    request,
-}: LoaderFunctionArgs){
-  const storyId = params.storyId;
-  const story = await getStory(Number(storyId));
-  return json({ story })
+
+export const loader = async({
+  request,
+}: LoaderFunctionArgs ) => {
+  await requireUserSession(request);
+  const stories = await getStories();
+
+  // const stories = null;
+  return json({ stories, user });
 }
 
-export async function action({
-    params,
-    request
-}: ActionFunctionArgs){
-    invariant(params.storyId, "Missing storyId param");
+export const action = async({
+    request,
+  }: ActionFunctionArgs ) => {
+    const session = await requireUserSession(request);
+
     const formData = await request.formData();
     console.log(Object.fromEntries(formData));
+  
+    // const stories = null;
+    return json({ user });
+  }
 
-    return redirect(`/story/${params.storyId}`);
-}
-
-export default function StoryEdit(){
-    const { story } = useLoaderData<typeof loader>();
+export default function WriteStory() {
     const navigate = useNavigate();
 
-    return(
-        <>
-            <Form key={story.id} method="post">
+  return (
+    <>
+        <ReverieNav user={user} />
+        <Form method="post">
                 <label>
                     <span>Title</span>
                     <input
-                    defaultValue={story.title}
                     name="title"
                     placeholder="Title your story"
                     type="text"
@@ -44,7 +50,6 @@ export default function StoryEdit(){
                 <label>
                     <span>Subtitle</span>
                     <input
-                    defaultValue={story.subtitle}
                     name="subtitle"
                     placeholder="Elaborate on the title"
                     type="text"
@@ -53,7 +58,6 @@ export default function StoryEdit(){
                 <label>
                     <span>Summary</span>
                     <input
-                    defaultValue={story.summary}
                     name="summary"
                     placeholder="Summarize your story here"
                     type="text"
@@ -63,7 +67,6 @@ export default function StoryEdit(){
                     <span>Plot</span>
                     <textarea
                         name="plot"
-                        defaultValue={story.plot}
                         placeholder="Explain your plot here"
                         rows={4}
                         cols={40}
@@ -75,13 +78,13 @@ export default function StoryEdit(){
                         <p>Text Editor</p>
                         <Tiptap
                             key="plot-tiptap"
-                            content={story.plot}
+                            content = {""}
                         />
                     </label>
                 </p>
                 <label>
                     <span>Medium</span>
-                    <select name="medium" defaultValue={story.medium}>
+                    <select name="medium">
                         <option disabled>--Please Select a Medium--</option>
                         <option value="gn">Graphic Novel</option>
                         <option value="bk">Book</option>
@@ -96,15 +99,15 @@ export default function StoryEdit(){
                 </label>
                 <label>
                     <span>Privacy</span>
-                    <select name="privacy" defaultValue={story.privacy}>
+                    <select name="privacy">
                         <option disabled>--Please Select a Privacy Status--</option>
                         <option value="pub">Public</option>
                         <option value="pri">Private</option>
                     </select>
                 </label>
-                <button type="submit">Submit Edits</button>
-                <button type="button" onClick={() => navigate(`/story/${story.id}`)}>Cancel Edits</button>
+                <button type="submit">Create Story</button>
+                <button type="button" onClick={() => navigate(`/home`)}>Cancel Story</button>
             </Form>
-        </>
-    )
+    </>
+  );
 }

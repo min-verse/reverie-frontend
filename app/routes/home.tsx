@@ -46,6 +46,10 @@ export default function HomeIndex() {
   return (
     <>
         <ReverieNav user={user} />
+        <Link
+          to={'/write_story'}>
+            Write a New Story
+        </Link>
         <div className="parent-container" style={{display: 'flex', flexDirection: 'row'}}>
         <div className="smaller-child-column">
             <input 
