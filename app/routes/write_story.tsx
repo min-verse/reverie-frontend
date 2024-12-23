@@ -1,6 +1,6 @@
-import { json, type MetaFunction, type LoaderFunctionArgs, ActionFunctionArgs } from "@remix-run/node";
+import { json, type MetaFunction, type LoaderFunctionArgs, ActionFunctionArgs, redirect } from "@remix-run/node";
 import { Link, NavLink, useLoaderData, useMatches, useNavigate } from "@remix-run/react";
-import { getStories } from "~/data";
+import { createStory, getStories } from "~/data";
 import { Outlet } from "@remix-run/react";
 import { useEffect, useState } from "react";
 import { user } from "~/data";
@@ -27,9 +27,23 @@ export const action = async({
 
     const formData = await request.formData();
     console.log(Object.fromEntries(formData));
+
+    const storyData = {
+        title: String(formData.get('title')),
+        subtitle: String(formData.get('subtitle')),
+        plot: String(formData.get('plot')),
+        summary: String(formData.get('summary')),
+        privacy: String(formData.get('privacy')),
+        medium: String(formData.get('medium')),
+        other_medium: String(formData.get('other_medium')),
+    }
+
+    const storyResponse = await createStory(request, storyData);
+
+    console.log(`This is the response: ${JSON.stringify(storyResponse)}`)
   
     // const stories = null;
-    return json({ user });
+    return redirect('/home');
   }
 
 export default function WriteStory() {
@@ -76,9 +90,11 @@ export default function WriteStory() {
                 <p>
                     <label>
                         <p>Text Editor</p>
-                        <Tiptap
-                            key="plot-tiptap"
-                            content = {""}
+                        <textarea
+                        name="plot"
+                        placeholder="Explain your story here"
+                        rows={4}
+                        cols={40}
                         />
                     </label>
                 </p>

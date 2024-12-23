@@ -14,6 +14,16 @@ export interface Story {
     owner: String
 };
 
+export interface StoryParams {
+    title: String | null,
+    subtitle: String | null,
+    plot: String | null,
+    summary: String | null,
+    privacy: String | null,
+    medium: String | null,
+    other_medium: String | null,
+};
+
 export interface Character {
     id: Number,
     storyId: Number,
@@ -241,6 +251,32 @@ export async function getCharacters(query?: Number | null){
     }
     return characters.filter((character)=> character.storyId === story.id);
 };
+
+export async function createStory(request: Request, storyData: StoryParams){
+    const session = await requireUserSession(request);
+
+    const response = await fetch('http://localhost:8000/dream/all_stories/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            Cookie: Object.entries(session.data)
+                  .map(([key, value]) => `${key}=${value}`)
+                  .join('; '),
+            'X-CSRFToken': session.get('csrftoken')
+        },
+        body: JSON.stringify(storyData)
+    }).then((res)=>{
+        if(!res.ok){
+            console.log(`ERROR CREATING STORY with status: ${res.status}`)
+        }else{
+            return res.json();
+        }
+    }).then((data)=>{
+        return data;
+    });
+
+    return response;
+}
 
 export async function authenticate(session: String){
     const response = await fetch('http://localhost:8000/api_auth/session/', {
