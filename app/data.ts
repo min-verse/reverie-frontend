@@ -1,6 +1,6 @@
 import { ActionFunctionArgs, Cookie, LoaderFunctionArgs, isCookie } from "@remix-run/node";
 import setCookie from 'set-cookie-parser';
-import { getSession } from "./services/session.server";
+import { getSession, requireUserSession } from "./services/session.server";
 
 export interface Story {
     id: Number,
@@ -272,10 +272,28 @@ export async function login(username: String, password: String, request: Request
     return response;
 };
 
-export async function logout(){
+export async function logout(request: Request){
+    const session = await requireUserSession(request);
+
     const response = await fetch('http://localhost:8000/api_auth/logout/',{
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: {
+            Cookie: Object.entries(session.data)
+                  .map(([key, value]) => `${key}=${value}`)
+                  .join('; '),
+            'X-CSRFToken': session.get('csrftoken')
+            }
+    }).then((res)=>{
+        if(!res.ok){
+            console.log(`ERROR: The status is ${res.status}`);
+        }else{
+            return res.json();
+        }
+    }).then((data)=>{
+        return data;
     });
+
+    console.log(`This is the response: ${response} which is ${typeof response}`);
 
     return response;
 }

@@ -4,7 +4,7 @@ import { json,
     CookieParseOptions, 
     CookieSerializeOptions, 
     redirect} from "@remix-run/node";
-import { login } from "~/data";
+import { login, logout } from "~/data";
 import { Form } from "@remix-run/react";
 import setCookie from "set-cookie-parser";
 import { commitSession, destroySession, getSession } from "~/services/session.server";
@@ -24,6 +24,9 @@ export const action = async({
         request.headers.get("Cookie")
     );
     console.log("Reached this part of the logout action");
+
+    await logout(request);
+
     // TODO: Update this to destroySession
     return redirect("/login", {
         headers: {

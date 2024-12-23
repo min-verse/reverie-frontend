@@ -27,10 +27,21 @@ export async function loader({ request }: LoaderFunctionArgs){
     request.headers.get('Cookie')
   );
 
+  if(!session.get('csrftoken')){
+    const token = await retrieveCsrfToken();
+    session.set('csrftoken', token);
+  }
+
+  const data = { error: session.get('error') }
+
   console.log(`This is the session's id: ${session.get('sessionid')}`);
   console.log(`This is the csrftoken: ${session.get('csrftoken')}`);
 
-  return null;
+  return json({ data }, {
+    headers: {
+      "Set-Cookie": await commitSession(session),
+    }
+  });
 }
 
 // export function Layout({ children }: { children: React.ReactNode }) {
