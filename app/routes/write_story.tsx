@@ -14,7 +14,7 @@ export const loader = async({
   request,
 }: LoaderFunctionArgs ) => {
   await requireUserSession(request);
-  const stories = await getStories();
+  const stories = await getStories(request);
 
   // const stories = null;
   return json({ stories, user });
@@ -87,17 +87,6 @@ export default function WriteStory() {
                         />
                     
                 </label>
-                <p>
-                    <label>
-                        <p>Text Editor</p>
-                        <textarea
-                        name="plot"
-                        placeholder="Explain your story here"
-                        rows={4}
-                        cols={40}
-                        />
-                    </label>
-                </p>
                 <label>
                     <span>Medium</span>
                     <select name="medium">

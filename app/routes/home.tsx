@@ -1,6 +1,6 @@
 import { json, type MetaFunction, type LoaderFunctionArgs } from "@remix-run/node";
 import { Link, NavLink, useLoaderData, useMatches } from "@remix-run/react";
-import { getStories } from "~/data";
+import { getStories, StoryResponse } from "~/data";
 import { Outlet } from "@remix-run/react";
 import { useEffect, useState } from "react";
 import { user } from "~/data";
@@ -17,9 +17,8 @@ export const meta: MetaFunction = () => {
 export const loader = async({
   request,
 }: LoaderFunctionArgs ) => {
-  await requireUserSession(request);
-  const stories = await getStories();
-
+  const stories: Array<StoryResponse> = await getStories(request);
+  console.log(`here are the stories the home route loader: ${stories}`)
   // const stories = null;
   return json({ stories, user });
 }

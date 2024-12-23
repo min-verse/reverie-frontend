@@ -13,7 +13,7 @@ export const meta: MetaFunction = () => {
 export const loader = async({
   request,
 }: LoaderFunctionArgs ) => {
-  const stories = await getStories();
+  const stories = await getStories(request);
 
   // const stories = null;
   return json({ stories });

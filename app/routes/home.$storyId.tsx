@@ -11,7 +11,7 @@ export async function loader({
     const storyId = params.storyId;
     invariant(storyId, 'Missing storyId');
 
-    const story = await getStory(Number(storyId));
+    const story = await getStory(request, Number(storyId));
 
     if(!story){
         throw new Response("Not Found", { status: 404 });

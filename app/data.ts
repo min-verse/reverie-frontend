@@ -14,6 +14,19 @@ export interface Story {
     owner: String
 };
 
+export interface StoryResponse {
+    readonly id: Number,
+    title: String,
+    subtitle: String,
+    plot: String,
+    summary: String,
+    privacy: String,
+    medium: String,
+    other_medium: String,
+    owner: String,
+    characters?: Array<Character>
+};
+
 export interface StoryParams {
     title: String | null,
     subtitle: String | null,
@@ -28,6 +41,11 @@ export interface Character {
     id: Number,
     storyId: Number,
     name: String,
+};
+
+export interface CharacterParams {
+    name: String | null,
+    description: String | null,
 };
 
 export interface User {
@@ -229,27 +247,89 @@ const characters: Array<Character> = [
     }
 ];
 
-export async function getStory(query?: Number | null){
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    const story = stories.find((story)=> story.id === query);
-    if(!story){
+// export async function getStory(query?: Number | null){
+//     await new Promise((resolve) => setTimeout(resolve, 1000));
+//     const story = stories.find((story)=> story.id === query);
+//     if(!story){
+//         throw new Response("Not Found", { status: 404 });
+//     }
+//     return { ...story, characters: await getCharacters(query) }
+// };
+
+export async function getStory(request: Request, query?: Number | null){
+    const session = await requireUserSession(request);
+
+    const storyResponse = await fetch(`http://localhost:8000/dream/all_stories/${query}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            Cookie: Object.entries(session.data)
+                  .map(([key, value]) => `${key}=${value}`)
+                  .join('; '),
+            'X-CSRFToken': session.get('csrftoken')
+        }
+    }).then((res)=>{
+        if(!res.ok){
+            console.log(`ERROR CREATING STORY with status: ${res.status}`)
+        }else{
+            return res.json();
+        }
+    }).then((data)=>{
+        return data;
+    });
+
+    if(!storyResponse){
         throw new Response("Not Found", { status: 404 });
     }
-    return { ...story, characters: await getCharacters(query) }
+
+    return { ...storyResponse, characters: await getCharacters(query) }
 };
 
-export async function getStories(){
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    return stories;
-};
+// export async function getStories(){
+//     await new Promise((resolve) => setTimeout(resolve, 1000));
+//     return stories;
+// };
+
+export async function getStories(request: Request){
+    const session = await requireUserSession(request);
+
+    const storiesResponse = await fetch('http://localhost:8000/dream/all_stories/', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            Cookie: Object.entries(session.data)
+                  .map(([key, value]) => `${key}=${value}`)
+                  .join('; '),
+            'X-CSRFToken': session.get('csrftoken')
+        }
+    }).then((res)=>{
+        if(!res.ok){
+            console.log(`ERROR CREATING STORY with status: ${res.status}`)
+        }else{
+            return res.json();
+        }
+    }).then((data)=>{
+        return data;
+    });
+
+    return storiesResponse;
+}
+
+// export async function getCharacters(query?: Number | null){
+//     await new Promise((resolve) => setTimeout(resolve, 100));
+//     const story = stories.find((story)=> story.id === query);
+//     if(!story){
+//         throw new Response("Not Found", { status: 404 });
+//     }
+//     return characters.filter((character)=> character.storyId === story.id);
+// };
 
 export async function getCharacters(query?: Number | null){
-    await new Promise((resolve) => setTimeout(resolve, 100));
-    const story = stories.find((story)=> story.id === query);
-    if(!story){
-        throw new Response("Not Found", { status: 404 });
-    }
-    return characters.filter((character)=> character.storyId === story.id);
+    return [{
+        id: 18,
+        storyId: 5,
+        name: "Xu Tang"
+    }];
 };
 
 export async function createStory(request: Request, storyData: StoryParams){
@@ -276,6 +356,32 @@ export async function createStory(request: Request, storyData: StoryParams){
     });
 
     return response;
+}
+
+export async function createCharacter(request: Request, storyId: Number, characterData: CharacterParams){
+    const session = await requireUserSession(request);
+
+    const characterResponse = await fetch(`http://localhost:8000/dream/characters/${storyId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            Cookie: Object.entries(session.data)
+                  .map(([key, value]) => `${key}=${value}`)
+                  .join('; '),
+            'X-CSRFToken': session.get('csrftoken')
+        },
+        body: JSON.stringify(characterData)
+    }).then((res)=>{
+        if(!res.ok){
+            console.log(`ERROR CREATING CHARACTER with status: ${res.status}`)
+        }else{
+            return res.json();
+        }
+    }).then((data)=>{
+        return data;
+    });
+
+    return characterResponse;
 }
 
 export async function authenticate(session: String){
