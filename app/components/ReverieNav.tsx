@@ -1,8 +1,7 @@
 import { User } from "~/data";
 import { Form, Link } from "@remix-run/react";
-import { redirect } from "@remix-run/node";
-import { ActionFunctionArgs } from "@remix-run/node";
-import { getSession, commitSession, destroySession } from "~/services/session.server";
+import { redirect, ActionFunctionArgs } from "@remix-run/node";
+import { getSession, destroySession } from "~/services/session.server";
 
 interface ReverieNavProps {
     user: User
@@ -38,7 +37,8 @@ export default function ReverieNav({ user }: ReverieNavProps){
                 style={{borderRadius:50}}
                 width={100}
                 height={100}
-                src={`https://avatarfiles.alphacoders.com/240/240756.png`} 
+                src={`https://avatarfiles.alphacoders.com/240/240756.png`}
+                alt={`Avatar for ${user.username}`}
               />
               {user.username}
             </Link>

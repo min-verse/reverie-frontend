@@ -1,11 +1,7 @@
-import { json, type MetaFunction, type LoaderFunctionArgs } from "@remix-run/node";
-import { Link, NavLink, useLoaderData, useMatches } from "@remix-run/react";
-import { getStories, StoryResponse } from "~/data";
-import { Outlet } from "@remix-run/react";
-import { useEffect, useState } from "react";
-import { user, getFeed } from "~/data";
+import { json, type LoaderFunctionArgs } from "@remix-run/node";
+import { NavLink, useLoaderData } from "@remix-run/react";
+import { user, getFeed, StoryResponse } from "~/data";
 import ReverieNav from "~/components/ReverieNav";
-import { requireUserSession } from "~/services/session.server";
 
 export const loader = async({
   request,

@@ -1,15 +1,12 @@
 import { json, 
     ActionFunctionArgs, 
-    LoaderFunctionArgs, 
-    CookieParseOptions, 
+    LoaderFunctionArgs,
     CookieSerializeOptions, 
     redirect} from "@remix-run/node";
 import { Error, login } from "~/data";
-import { Form, useLoaderData } from "@remix-run/react";
+import { Link, Form, useLoaderData, useActionData } from "@remix-run/react";
 import setCookie from "set-cookie-parser";
 import { commitSession, getSession } from "~/services/session.server";
-import { useActionData } from "@remix-run/react";
-import { Link } from "@remix-run/react";
 
 export const loader = async({
     request,
@@ -34,14 +31,17 @@ export const loader = async({
 }
 
 export const action = async({
-    params,
     request
 }: ActionFunctionArgs)=>{
     const formData = await request.formData();
     const username = String(formData.get('username'));
     const password = String(formData.get('password'));
 
-    const errors: any = {}
+    const errors: {
+        username?: string,
+        email?: string,
+        password?: string
+    } = {}
     if(!username){
         errors.username = "Invalid login attempt - Username required";
     }
@@ -54,7 +54,7 @@ export const action = async({
         return json({ errors });
     }
 
-    const response: Response | Error = await login(username, password, request);
+    const response: Response | Error = await login(username, password);
     if('error' in response){
         return json({ response })
     }
@@ -77,7 +77,7 @@ export const action = async({
     if(!setCookieHeader){
         console.log('No Set-Cookie Header found');
         return redirect('/unauthenticated');
-    };
+    }
 
     const parsedResponseCookies = setCookie.parse(setCookie.splitCookiesString(setCookieHeader));
     const sessionIdCookie = parsedResponseCookies.find((cookie) => cookie.name === 'sessionid');
@@ -128,7 +128,7 @@ export default function Login(){
             }
             {
                 actionData && 'errors' in actionData ?
-                    <p><span style={{color:'red'}}>{actionData?.errors?.error}</span></p>
+                    <p><span style={{color:'red'}}>{actionData?.errors?.username}</span></p>
                 :
                 null
             }

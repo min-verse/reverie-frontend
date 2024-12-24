@@ -1,64 +1,63 @@
-import { ActionFunctionArgs, Cookie, LoaderFunctionArgs, isCookie } from "@remix-run/node";
 import setCookie from 'set-cookie-parser';
 import { getSession, requireUserSession } from "./services/session.server";
 
 export interface Story {
-    id: Number,
-    title: String,
-    subtitle: String,
-    plot: String,
-    summary: String,
-    privacy: String,
-    medium: String,
-    other_medium: String,
-    owner: String
-};
+    id: number,
+    title: string,
+    subtitle: string,
+    plot: string,
+    summary: string,
+    privacy: string,
+    medium: string,
+    other_medium: string,
+    owner: string
+}
 
 export interface StoryResponse {
-    readonly id: Number,
-    title: String,
-    subtitle: String,
-    plot: String,
-    summary: String,
-    privacy: String,
-    medium: String,
-    other_medium: String,
-    owner: String,
-    author: String,
+    readonly id: number,
+    title: string,
+    subtitle: string,
+    plot: string,
+    summary: string,
+    privacy: string,
+    medium: string,
+    other_medium: string,
+    owner: string,
+    author: string,
     characters?: Array<Character>
-};
+}
 
 export interface StoryParams {
-    title: String | null,
-    subtitle: String | null,
-    plot: String | null,
-    summary: String | null,
-    privacy: String | null,
-    medium: String | null,
-    other_medium: String | null,
-};
+    title: string | null,
+    subtitle: string | null,
+    plot: string | null,
+    summary: string | null,
+    privacy: string | null,
+    medium: string | null,
+    other_medium: string | null,
+}
 
 export interface Character {
-    id: Number,
-    storyId: Number,
-    name: String,
-};
+    id: number,
+    storyId: number,
+    name: string,
+}
 
 export interface CharacterParams {
-    name: String | null,
-    description: String | null,
-};
+    name: string | null,
+    description: string | null,
+}
 
 export interface Error {
-    error: String,
+    error: string,
 }
 
 export interface User {
-    id: Number,
-    email: String,
-    username: String,
-    picUrl: String,
-    password: String
+    id: number,
+    email: string,
+    username: string,
+    picUrl: string,
+    password: string
 }
 
 export const user: User = {
@@ -69,7 +68,7 @@ export const user: User = {
     password: "123"
 }
 
-export async function getStory(request: Request, query?: Number | null){
+export async function getStory(request: Request, query?: number | null){
     const session = await requireUserSession(request);
 
     const storyResponse = await fetch(`http://localhost:8000/dream/all_stories/${query}`, {
@@ -96,7 +95,7 @@ export async function getStory(request: Request, query?: Number | null){
     }
 
     return { ...storyResponse }
-};
+}
 
 export async function getFeed(request: Request){
     const session = await requireUserSession(request);
@@ -157,7 +156,7 @@ export async function getStories(request: Request){
 //     return characters.filter((character)=> character.storyId === story.id);
 // };
 
-export async function getCharacters(request: Request, query?: Number | null){
+export async function getCharacters(request: Request, query?: number | null){
     const session = await requireUserSession(request);
 
     const charactersResponse = await fetch(`http://localhost:8000/dream/characters/${query}`, {
@@ -180,7 +179,7 @@ export async function getCharacters(request: Request, query?: Number | null){
     });
 
     return charactersResponse;
-};
+}
 
 export async function createStory(request: Request, storyData: StoryParams){
     const session = await requireUserSession(request);
@@ -212,7 +211,7 @@ export async function createStory(request: Request, storyData: StoryParams){
     return response;
 }
 
-export async function createCharacter(request: Request, storyId: Number, characterData: CharacterParams){
+export async function createCharacter(request: Request, storyId: number, characterData: CharacterParams){
     const session = await requireUserSession(request);
 
     const characterResponse = await fetch(`http://localhost:8000/dream/characters/${storyId}`, {
@@ -238,18 +237,18 @@ export async function createCharacter(request: Request, storyId: Number, charact
     return characterResponse;
 }
 
-export async function authenticate(session: String){
-    const response = await fetch('http://localhost:8000/api_auth/session/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    });
+// export async function authenticate(session: String){
+//     const response = await fetch('http://localhost:8000/api_auth/session/', {
+//         method: 'POST',
+//         headers: {
+//             'Content-Type': 'application/json'
+//         }
+//     });
 
-    return response;
-};
+//     return response;
+// }
 
-export async function login(username: String, password: String, request: Request){
+export async function login(username: string, password: string){
     // const csrfToken = await getCsrfToken(request);
     // console.log(`Reached here 1.2: ${csrfToken}`);
 
@@ -270,9 +269,9 @@ export async function login(username: String, password: String, request: Request
     });
 
     return response;
-};
+}
 
-export async function register(username: String, email: String, password: String, request: Request){
+export async function register(username: string, email: string, password: string){
     // const csrfToken = await getCsrfToken(request);
     // console.log(`Reached here 1.2: ${csrfToken}`);
 
@@ -294,7 +293,7 @@ export async function register(username: String, email: String, password: String
     });
 
     return response;
-};
+}
 
 export async function logout(request: Request){
     const session = await requireUserSession(request);
@@ -379,18 +378,18 @@ export async function getCurrentUser(request: Request){
     return userResponse['username'];
 }
 
-function getCookie(name: string) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            // Does this cookie string begin with the name we want?
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
+// function getCookie(name: string) {
+//     let cookieValue = null;
+//     if (document.cookie && document.cookie !== '') {
+//         const cookies = document.cookie.split(';');
+//         for (let i = 0; i < cookies.length; i++) {
+//             const cookie = cookies[i].trim();
+//             // Does this cookie string begin with the name we want?
+//             if (cookie.substring(0, name.length + 1) === (name + '=')) {
+//                 cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+//                 break;
+//             }
+//         }
+//     }
+//     return cookieValue;
+// }

@@ -1,14 +1,10 @@
 import { json, 
     ActionFunctionArgs, 
     LoaderFunctionArgs, 
-    CookieParseOptions, 
-    CookieSerializeOptions, 
     redirect} from "@remix-run/node";
 import { register } from "~/data";
-import { Form } from "@remix-run/react";
-import setCookie from "set-cookie-parser";
+import { Form, useActionData } from "@remix-run/react";
 import { commitSession, getSession } from "~/services/session.server";
-import { useActionData } from "@remix-run/react";
 import { useState } from "react";
 
 export const loader = async({
@@ -28,7 +24,6 @@ export const loader = async({
 }
 
 export const action = async({
-    params,
     request
 }: ActionFunctionArgs)=>{
     const formData = await request.formData();
@@ -37,7 +32,12 @@ export const action = async({
     const password = String(formData.get('password'));
     const confirmPassword = String(formData.get('confirmPassword'));
 
-    const errors: any = {}
+    const errors: {
+        username?: string,
+        email?: string,
+        password?: string,
+        confirmPassword?: string
+    } = {}
     if(!username){
         errors.username = "Invalid register attempt - Username required";
     }
@@ -60,7 +60,7 @@ export const action = async({
         return json({ errors });
     }
 
-    const response = await register(username, email, password, request);
+    const response = await register(username, email, password);
     if('error' in response){
         return json({ response })
     }

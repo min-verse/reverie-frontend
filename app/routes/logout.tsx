@@ -1,22 +1,14 @@
-import { json, 
-    ActionFunctionArgs, 
-    LoaderFunctionArgs, 
-    CookieParseOptions, 
-    CookieSerializeOptions, 
+import {
+    ActionFunctionArgs,  
     redirect} from "@remix-run/node";
-import { login, logout } from "~/data";
-import { Form } from "@remix-run/react";
-import setCookie from "set-cookie-parser";
-import { commitSession, destroySession, getSession } from "~/services/session.server";
+import { logout } from "~/data";
+import { destroySession, getSession } from "~/services/session.server";
 
-export const loader = async({
-    request,
-}: LoaderFunctionArgs)=>{
+export const loader = async()=>{
     return null;
 }
 
 export const action = async({
-    params,
     request
 }: ActionFunctionArgs)=>{
     console.log("Reached the beginning of the action method");

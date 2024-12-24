@@ -1,8 +1,7 @@
 import { json, type ActionFunctionArgs, type MetaFunction, type LoaderFunctionArgs } from "@remix-run/node";
-import { Form, Link, NavLink, useLoaderData, useMatches, redirect, useActionData } from "@remix-run/react";
-import { getStories, getCurrentUser, retrieveCsrfToken } from "~/data";
-import { commitSession, getSession, requireUserSession } from "~/services/session.server";
-import { useState } from "react";
+import { Form, Link, useLoaderData, redirect, useActionData } from "@remix-run/react";
+import { getCurrentUser } from "~/data";
+import { commitSession, requireUserSession } from "~/services/session.server";
 
 export const meta: MetaFunction = () => {
   return [
@@ -49,10 +48,11 @@ export async function action({ request }: ActionFunctionArgs) {
   const action = formData.get("action");
 
   switch(action){
-    case 'username':
+    case 'username': {
       const username = await getCurrentUser(request);
       actionResponse['username'] = username;
       break;
+    }
     case 'email':
       actionResponse['email'] = 'jeremy.willis@teufort.gov'
       break;
@@ -70,11 +70,17 @@ export default function Index() {
 
   return (
     <div className="parent-container" style={{display: 'flex', flexDirection: 'row'}}>
-      <h1>This is the root route's index page</h1>
+      <h1>This is the root route&apos;s index page</h1>
       <Link to='/home'>Go to the Home Page</Link>
       <h1 className="text-3xl font-bold underline">
             Reverie
           </h1>
+          {
+            data && data?.error ?
+              <p><span style={{color:'red'}}>{data?.error}</span></p>
+            :
+            null
+          }
           {authenticated && authenticated.message ?
               <Link
               to={`/home`}
