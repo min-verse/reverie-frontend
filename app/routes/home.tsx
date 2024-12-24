@@ -68,7 +68,7 @@ export default function HomeIndex() {
                     Go to <em>{story.title}</em> Page
                 </NavLink>
                 <h2>Title: {story.title}</h2>
-                <h3>Author: {story.owner}</h3>
+                <h3>Author: {story.author}</h3>
                 <p>Summary: {story.summary}</p>
                 </ul>
             )

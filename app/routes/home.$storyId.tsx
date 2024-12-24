@@ -29,7 +29,7 @@ export default function Story(){
             <h1>{story.title}</h1>
             <h2>{story.subtitle}</h2>
             <h3>{story.summary}</h3>
-            <h6>Written by: {story.owner}</h6>
+            <h6>Written by: {story.author}</h6>
             <p>{story.plot}</p>
             <Link to={`/story/${story.id}`}>Go to {story.title} Page</Link>
         </div>

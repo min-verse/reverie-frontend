@@ -43,7 +43,7 @@ export async function action({
     const characterResponse = await createCharacter(request, Number(storyId), characterData);
 
     const success = {
-        message: `Successfully added ${formData.get('name')} to story ${storyId}`;
+        message: `Successfully added ${formData.get('name')} to story ${storyId}`,
     };
 
     return json({ success });
@@ -61,7 +61,7 @@ export default function Story(){
             <h1>{story.title}</h1>
             <h2>{story.subtitle}</h2>
             <h3>{story.summary}</h3>
-            <h6>Written by: {story.owner}</h6>
+            <h6>Written by: {story.author}</h6>
             <p>{story.plot}</p>
             <h5>
                 Characters: 
@@ -99,6 +99,12 @@ export default function Story(){
                         Add Character to Story
                     </button>
             </Form>
+            {
+                actionData?.success ?
+                <p style={{color:'green'}}>{actionData?.success?.message}</p>
+                :
+                null
+            }
         </div>
     );
 }

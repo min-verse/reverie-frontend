@@ -10,7 +10,7 @@ export async function loader({
     request,
 }: LoaderFunctionArgs){
   const storyId = params.storyId;
-  const story = await getStory(Number(storyId));
+  const story = await getStory(request, Number(storyId));
   return json({ story })
 }
 
