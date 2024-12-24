@@ -4,23 +4,20 @@ import { json,
     CookieParseOptions, 
     CookieSerializeOptions, 
     redirect} from "@remix-run/node";
-import { login } from "~/data";
+import { register } from "~/data";
 import { Form } from "@remix-run/react";
 import setCookie from "set-cookie-parser";
 import { commitSession, getSession } from "~/services/session.server";
+import { useActionData } from "@remix-run/react";
+import { useState } from "react";
 
 export const loader = async({
     request,
 }: LoaderFunctionArgs)=>{
     const session = await getSession(
         request.headers.get('Cookie')
-      );
-    
-      // if(!session.get('csrftoken')){
-      //   const token = await retrieveCsrfToken();
-      //   session.set('csrftoken', token);
-      // }
-    
+    );
+
     const authenticated = session.get('sessionid') ? { message: `You're authenticated!` } : null;
     if(authenticated){
         console.log(`Session has session id of this on login page: ${session.get('sessionid')}`)
@@ -36,28 +33,36 @@ export const action = async({
 }: ActionFunctionArgs)=>{
     const formData = await request.formData();
     const username = String(formData.get('username'));
+    const email = String(formData.get('email'));
     const password = String(formData.get('password'));
+    const confirmPassword = String(formData.get('confirmPassword'));
 
     const errors: any = {}
     if(!username){
-        errors.username = "Invalid login attempt - Username required";
+        errors.username = "Invalid register attempt - Username required";
+    }
+
+    if(!email){
+        errors.email = "Invalid register attempt - Email required";
+    }else if(!email.includes("@")){
+        errors.email = "Invalid email address format"
     }
 
     if(!password){
-        errors.password = "Invalid login attempt - Password required";
+        errors.password = "Invalid register attempt - Password required";
+    }
+
+    if(password !== confirmPassword){
+        errors.confirmPassword = "Invalid register attempt - Passwords do not match";
     }
 
     if(Object.keys(errors).length > 0){
         return json({ errors });
     }
 
-    const response = await login(username, password, request);
-    if(response){
-        const text = await response.text();
-        console.log("Here are the headers");
-        console.log(...response.headers);
-        console.log(`This is the response status: ${response.status}`);
-        console.log(`The Response says this: ${text}`);
+    const response = await register(username, email, password, request);
+    if('error' in response){
+        return json({ response })
     }
 
     if(!response || !response.ok){
@@ -65,53 +70,59 @@ export const action = async({
         return redirect('/unauthenticated');
     }
 
-    const setCookieHeader = response.headers.get('Set-Cookie');
-
-    if(!setCookieHeader){
-        console.log('No Set-Cookie Header found');
-        return redirect('/unauthenticated');
-    };
-
-    const parsedResponseCookies = setCookie.parse(setCookie.splitCookiesString(setCookieHeader));
-    const sessionIdCookie = parsedResponseCookies.find((cookie) => cookie.name === 'sessionid');
-
-    if(!sessionIdCookie){
-        console.log(`No sessionid found in the response's Set-Cookie header`);
-        return redirect('/unauthenticated');
-    }
-
-    console.log(`sessionIdCookie is: ${JSON.stringify(sessionIdCookie)}`);
-
-    const headers = new Headers();
-
-    const { name, value, ...sessionIdCookieSerializeOptions } = sessionIdCookie;
     const session = await getSession(request.headers.get('Cookie'));
 
-    // NOTE: name is 'sessionid' (supplied by Django), value is an encrypted value (also supplied by Django)
-    session.set(name, value);
+    session.flash("registerSuccess", `Successfully registered ${username}, please log in`);
 
-    headers.append(
-        'Set-Cookie',
-        await commitSession(
-            session,
-            sessionIdCookieSerializeOptions as CookieSerializeOptions,
-        )
-    );
-
-    return redirect('/home', { headers });
+    return redirect('/login', { 
+        headers: {
+            "Set-Cookie": await commitSession(session)
+        }
+    });
 };
 
 export default function Register(){
+    const actionData = useActionData<typeof action>();
+    const [ password, setPassword ] = useState('');
+    const [ confirmPassword, setConfirmPassword ] = useState('');
+
     return(
         <>
+            {
+                actionData && 'response' in actionData ?
+                    <p><span style={{color:'red'}}>{actionData?.response?.error}</span></p>
+                :
+                null
+            }
+
             <Form method="post">
-            <label>
+                <label>
                     <span>Username</span>
                     <input
                         name="username"
                         placeholder="Username"
                         type="text"
                     />
+                    {
+                        actionData && 'errors' in actionData && actionData?.errors?.username ?
+                        <p><span style={{color:'red'}}>{actionData?.errors?.username}</span></p>
+                        :
+                        null
+                    }
+                </label>
+                <label>
+                    <span>Email</span>
+                    <input
+                        name="email"
+                        placeholder="Email"
+                        type="text"
+                    />
+                    {
+                        actionData && 'errors' in actionData && actionData?.errors?.email ?
+                        <p><span style={{color:'red'}}>{actionData?.errors?.email}</span></p>
+                        :
+                        null
+                    }
                 </label>
                 <label>
                     <span>Password</span>
@@ -119,10 +130,40 @@ export default function Register(){
                         name="password"
                         placeholder="Password"
                         type="password"
+                        onChange={(e) => setPassword(e.target.value)}
+                        value={password}
                     />
+                    {
+                        actionData && 'errors' in actionData && actionData?.errors?.password ?
+                        <p><span style={{color:'red'}}>{actionData?.errors?.password}</span></p>
+                        :
+                        null
+                    }
                 </label>
-                <button type="submit">Login</button>
+                <label>
+                    <span>Confirm Password</span>
+                    <input
+                        name="confirmPassword"
+                        placeholder="Confirm Password"
+                        type="password"
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        value={confirmPassword}
+                    />
+                    {
+                        actionData && 'errors' in actionData && actionData?.errors?.confirmPassword ?
+                        <p><span style={{color:'red'}}>{actionData?.errors?.confirmPassword}</span></p>
+                        :
+                        null
+                    }
+                </label>
+                <button type="submit">Register</button>
             </Form>
+            {
+                password && confirmPassword && password !== confirmPassword ?
+                    <p><span style={{color:'red'}}>Passwords do not match</span></p>
+                :
+                null
+            }
         </>
     );
 }

@@ -4,30 +4,33 @@ import { json,
     CookieParseOptions, 
     CookieSerializeOptions, 
     redirect} from "@remix-run/node";
-import { login } from "~/data";
-import { Form } from "@remix-run/react";
+import { Error, login } from "~/data";
+import { Form, useLoaderData } from "@remix-run/react";
 import setCookie from "set-cookie-parser";
 import { commitSession, getSession } from "~/services/session.server";
+import { useActionData } from "@remix-run/react";
+import { Link } from "@remix-run/react";
 
 export const loader = async({
     request,
 }: LoaderFunctionArgs)=>{
     const session = await getSession(
         request.headers.get('Cookie')
-      );
-    
-      // if(!session.get('csrftoken')){
-      //   const token = await retrieveCsrfToken();
-      //   session.set('csrftoken', token);
-      // }
-    
+    );
+
     const authenticated = session.get('sessionid') ? { message: `You're authenticated!` } : null;
     if(authenticated){
         console.log(`Session has session id of this on login page: ${session.get('sessionid')}`)
         return redirect('/home');
     }
 
-    return null;
+    const message = session.get("registerSuccess") || null;
+
+    return json({ message }, {
+        headers: {
+            'Set-Cookie': await commitSession(session)
+        }
+    });
 }
 
 export const action = async({
@@ -51,7 +54,11 @@ export const action = async({
         return json({ errors });
     }
 
-    const response = await login(username, password, request);
+    const response: Response | Error = await login(username, password, request);
+    if('error' in response){
+        return json({ response })
+    }
+
     if(response){
         const text = await response.text();
         console.log("Here are the headers");
@@ -102,8 +109,29 @@ export const action = async({
 };
 
 export default function Login(){
+    const { message } = useLoaderData<typeof loader>();
+    const actionData = useActionData<typeof action>();
+
     return(
         <>
+            {
+                message ?
+                    <p><span style={{color:'green'}}>{message}</span></p>
+                :
+                null
+            }
+            {
+                actionData && 'response' in actionData ?
+                    <p><span style={{color:'red'}}>{actionData?.response?.error}</span></p>
+                :
+                null
+            }
+            {
+                actionData && 'errors' in actionData ?
+                    <p><span style={{color:'red'}}>{actionData?.errors?.error}</span></p>
+                :
+                null
+            }
             <Form method="post">
             <label>
                     <span>Username</span>
@@ -123,6 +151,11 @@ export default function Login(){
                 </label>
                 <button type="submit">Login</button>
             </Form>
+            <Link
+                to={`/register`}
+            >
+                Register an Account
+            </Link>
         </>
     );
 }

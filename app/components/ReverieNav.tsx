@@ -43,6 +43,11 @@ export default function ReverieNav({ user }: ReverieNavProps){
               {user.username}
             </Link>
             <Link
+              to={'/feed'}
+            >
+              Return to Stories Feed
+            </Link>
+            <Link
               to={'/'}
             >
               Return to Index Route

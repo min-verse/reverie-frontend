@@ -49,6 +49,10 @@ export interface CharacterParams {
     description: String | null,
 };
 
+export interface Error {
+    error: String,
+}
+
 export interface User {
     id: Number,
     email: String,
@@ -249,7 +253,7 @@ export async function login(username: String, password: String, request: Request
     // const csrfToken = await getCsrfToken(request);
     // console.log(`Reached here 1.2: ${csrfToken}`);
 
-    const response = await fetch('http://localhost:8000/api_auth/login/',{
+    const response: Response | Error = await fetch('http://localhost:8000/api_auth/login/',{
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -259,7 +263,35 @@ export async function login(username: String, password: String, request: Request
             username: username,
             password: password
         })
-    }).catch((err)=> console.log(err.message));
+    }).catch((e)=> {
+        return {
+            error: `Failed to login due to: ${e.message}`
+        }
+    });
+
+    return response;
+};
+
+export async function register(username: String, email: String, password: String, request: Request){
+    // const csrfToken = await getCsrfToken(request);
+    // console.log(`Reached here 1.2: ${csrfToken}`);
+
+    const response: Response | Error = await fetch(`http://localhost:8000/api_auth/register/`,{
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            // 'X-CSRFToken': csrfToken,
+        },
+        body: JSON.stringify({
+            username: username,
+            email: email,
+            password: password
+        })
+    }).catch((e)=> {
+        return {
+            error: `Failed to login due to: ${e.message}`
+        }
+    });
 
     return response;
 };

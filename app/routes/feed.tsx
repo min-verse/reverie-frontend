@@ -21,6 +21,7 @@ export default function Feed() {
 
   return (
     <>
+        <ReverieNav user={user} />
         {stories && stories.length ? stories.map((story)=>{
             return (
                 <ul key={story.id}>
@@ -33,7 +34,7 @@ export default function Feed() {
                     Go to <em>{story.title}</em> Page
                 </NavLink>
                 <h2>Title: {story.title}</h2>
-                <h3>Author: {story.owner}</h3>
+                <h3>Author: {story.author}</h3>
                 <p>Summary: {story.summary}</p>
                 </ul>
             )
