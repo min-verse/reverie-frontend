@@ -1,5 +1,5 @@
 import { json, type MetaFunction, type LoaderFunctionArgs, ActionFunctionArgs, redirect } from "@remix-run/node";
-import { Link, NavLink, useLoaderData, useMatches, useNavigate } from "@remix-run/react";
+import { Link, NavLink, useActionData, useLoaderData, useMatches, useNavigate } from "@remix-run/react";
 import { createStory, getStories } from "~/data";
 import { Outlet } from "@remix-run/react";
 import { useEffect, useState } from "react";
@@ -40,7 +40,10 @@ export const action = async({
 
     const storyResponse = await createStory(request, storyData);
 
-    console.log(`This is the response: ${JSON.stringify(storyResponse)}`)
+    console.log(`This is the response: ${JSON.stringify(storyResponse)}`);
+    if("error" in storyResponse){
+        return json({ storyResponse });
+    }
   
     // const stories = null;
     return redirect('/home');
@@ -48,10 +51,17 @@ export const action = async({
 
 export default function WriteStory() {
     const navigate = useNavigate();
+    const actionData = useActionData<typeof action>();
 
   return (
     <>
         <ReverieNav user={user} />
+        {
+            actionData && actionData?.storyResponse && actionData?.storyResponse?.error ?
+            <p><span style={{color:'red'}}>{actionData?.storyResponse?.error}</span></p>
+            :
+            null
+        }
         <Form method="post">
                 <label>
                     <span>Title</span>

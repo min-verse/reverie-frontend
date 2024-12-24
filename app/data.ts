@@ -193,12 +193,16 @@ export async function createStory(request: Request, storyData: StoryParams){
         body: JSON.stringify(storyData)
     }).then((res)=>{
         if(!res.ok){
-            console.log(`ERROR CREATING STORY with status: ${res.status}`)
+            throw new Error(`Error in creating story ${storyData['title']} with status: ${res.status}`)
         }else{
             return res.json();
         }
     }).then((data)=>{
         return data;
+    }).catch((e)=>{
+        return {
+            error: e.message
+        }
     });
 
     return response;
