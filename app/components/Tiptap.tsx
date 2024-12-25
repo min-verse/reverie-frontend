@@ -23,7 +23,7 @@ const extensions = [
 ]
 
 interface TiptapProps {
-    content: String
+    content: string
 }
 
 // const content = '<p>Hello World!</p>'
@@ -35,4 +35,4 @@ export default function Tiptap({content}: TiptapProps) {
       <BubbleMenu>This is the bubble menu</BubbleMenu>
     </EditorProvider>
   )
-};
+}

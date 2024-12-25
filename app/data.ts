@@ -56,16 +56,36 @@ export interface User {
     id: number,
     email: string,
     username: string,
-    picUrl: string,
+    avatar_url: string,
     password: string
+}
+
+export interface UserProfile {
+    username: string,
+    avatar_url: string | null,
+}
+
+export interface RegisterParams {
+    username: string,
+    email: string,
+    firstName?: string,
+    lastName?: string,
+    avatarUrl?: string,
+    password: string,
+    confirmPassword: string
 }
 
 export const user: User = {
     id: 1,
     email: "johndoe@aol.com",
     username: "xX__blaze__Xx",
-    picUrl: "https://avatarfiles.alphacoders.com/240/240756.png",
+    avatar_url: "https://avatarfiles.alphacoders.com/240/240756.png",
     password: "123"
+}
+
+export const userProfile: UserProfile = {
+    username: "xX__blaze__Xx",
+    avatar_url: "https://avatarfiles.alphacoders.com/240/240756.png"
 }
 
 export async function getStory(request: Request, query?: number | null){
@@ -145,6 +165,31 @@ export async function getStories(request: Request){
     });
 
     return storiesResponse;
+}
+
+export async function getUserProfile(request: Request){
+    const session = await requireUserSession(request);
+
+    const profileResponse = await fetch(`http://localhost:8000/profile/`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            Cookie: Object.entries(session.data)
+                  .map(([key, value]) => `${key}=${value}`)
+                  .join('; '),
+            'X-CSRFToken': session.get('csrftoken')
+        }
+    }).then((res)=>{
+        if(!res.ok){
+            console.log(`ERROR RETRIEVING USER PROFILE with status: ${res.status}`)
+        }else{
+            return res.json();
+        }
+    }).then((data)=>{
+        return data;
+    });
+
+    return profileResponse;
 }
 
 // export async function getCharacters(query?: Number | null){
@@ -271,7 +316,7 @@ export async function login(username: string, password: string){
     return response;
 }
 
-export async function register(username: string, email: string, password: string){
+export async function register(registerPayload: RegisterParams){
     // const csrfToken = await getCsrfToken(request);
     // console.log(`Reached here 1.2: ${csrfToken}`);
 
@@ -281,11 +326,7 @@ export async function register(username: string, email: string, password: string
             'Content-Type': 'application/json',
             // 'X-CSRFToken': csrfToken,
         },
-        body: JSON.stringify({
-            username: username,
-            email: email,
-            password: password
-        })
+        body: JSON.stringify(registerPayload)
     }).catch((e)=> {
         return {
             error: `Failed to login due to: ${e.message}`

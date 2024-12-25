@@ -1,15 +1,16 @@
 import { json, type LoaderFunctionArgs } from "@remix-run/node";
 import { NavLink, useLoaderData } from "@remix-run/react";
-import { user, getFeed, StoryResponse } from "~/data";
+import { getFeed, StoryResponse } from "~/data";
 import ReverieNav from "~/components/ReverieNav";
 
 export const loader = async({
   request,
 }: LoaderFunctionArgs ) => {
   const stories: Array<StoryResponse> = await getFeed(request);
+  // const userProfile = await getUserProfile(request);
   console.log(`here are the stories the feed route loader: ${stories}`)
   // const stories = null;
-  return json({ stories, user });
+  return json({ stories });
 }
 
 export default function Feed() {
@@ -17,7 +18,7 @@ export default function Feed() {
 
   return (
     <>
-        <ReverieNav user={user} />
+        <ReverieNav />
         {stories && stories.length ? stories.map((story)=>{
             return (
                 <ul key={story.id}>

@@ -1,26 +1,30 @@
-import { LoaderFunctionArgs, json } from "@remix-run/node";
+import { json, LoaderFunctionArgs } from "@remix-run/node";
 import { Outlet, useLoaderData } from "@remix-run/react";
 import ReverieNav from "~/components/ReverieNav";
-import { user } from "~/data";
+import { getUserProfile } from "~/data";
+// import { requireUserSession } from "~/services/session.server";
 
 export async function loader({
-    params,
     request
 }: LoaderFunctionArgs){
-    return json({ user });
+    const userProfile = await getUserProfile(request);
+    return json({ userProfile });
 }
 
 export default function Profile(){
-    const { user } = useLoaderData<typeof loader>();
+    const { userProfile } = useLoaderData<typeof loader>();
 
     return(
         <div>
-            <ReverieNav user={user} />
+            <ReverieNav />
             <div>
-                <img src={user.picUrl} alt={`${user.username}'s profile picture`} />
-                <p>{user.username}</p>
+                <img src={userProfile['avatar_url']} alt={`${userProfile['username']}'s avatar`} />
+                <p>{userProfile['username']}</p>
             </div>
             <div>
+                {
+                    userProfile && <p style={{color:'blue'}}>This is {userProfile['first_name']} {userProfile['last_name']} or {userProfile['username']}&apos;s profile</p>
+                }
                 <Outlet />
             </div>
         </div>

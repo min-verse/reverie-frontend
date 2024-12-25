@@ -2,8 +2,8 @@ import { json,
     ActionFunctionArgs, 
     LoaderFunctionArgs, 
     redirect} from "@remix-run/node";
-import { register } from "~/data";
-import { Form, useActionData } from "@remix-run/react";
+import { register, RegisterParams } from "~/data";
+import { Form, Link, useActionData } from "@remix-run/react";
 import { commitSession, getSession } from "~/services/session.server";
 import { useState } from "react";
 
@@ -29,6 +29,9 @@ export const action = async({
     const formData = await request.formData();
     const username = String(formData.get('username'));
     const email = String(formData.get('email'));
+    const firstName = String(formData.get('firstName'));
+    const lastName = String(formData.get('lastName'));
+    const avatarUrl = String(formData.get('avatarUrl'));
     const password = String(formData.get('password'));
     const confirmPassword = String(formData.get('confirmPassword'));
 
@@ -60,7 +63,17 @@ export const action = async({
         return json({ errors });
     }
 
-    const response = await register(username, email, password);
+    const registerPayload: RegisterParams = {
+        username: username,
+        email: email,
+        firstName: firstName,
+        lastName: lastName,
+        avatarUrl: avatarUrl,
+        password: password,
+        confirmPassword: confirmPassword
+    }
+
+    const response = await register(registerPayload);
     if('error' in response){
         return json({ response })
     }
@@ -125,6 +138,30 @@ export default function Register(){
                     }
                 </label>
                 <label>
+                    <span>First Name</span>
+                    <input
+                        name="firstName"
+                        placeholder="First Name"
+                        type="text"
+                    />
+                </label>
+                <label>
+                    <span>Last Name</span>
+                    <input
+                        name="lastName"
+                        placeholder="Last Name"
+                        type="text"
+                    />
+                </label>
+                <label>
+                    <span>Avatar URL</span>
+                    <input
+                        name="avatarUrl"
+                        placeholder="Avatar URL"
+                        type="text"
+                    />
+                </label>
+                <label>
                     <span>Password</span>
                     <input
                         name="password"
@@ -158,6 +195,11 @@ export default function Register(){
                 </label>
                 <button type="submit">Register</button>
             </Form>
+            <Link
+                to={`/login`}
+            >
+                Go back to Login
+            </Link>
             {
                 password && confirmPassword && password !== confirmPassword ?
                     <p><span style={{color:'red'}}>Passwords do not match</span></p>

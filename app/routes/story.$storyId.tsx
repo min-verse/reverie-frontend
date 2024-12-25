@@ -1,11 +1,8 @@
-import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
+import { ActionFunctionArgs, LoaderFunctionArgs, json, redirect } from "@remix-run/node";
 import invariant from "tiny-invariant";
-import { createCharacter, StoryResponse } from "~/data";
-import { useLoaderData, useMatches, Link, useActionData } from "@remix-run/react";
-import { getStory } from "~/data";
-import { user } from "~/data";
+import { getStory, createCharacter, StoryResponse } from "~/data";
+import { useLoaderData, Form, Link, useActionData } from "@remix-run/react";
 import ReverieNav from "~/components/ReverieNav";
-import { Form } from "@remix-run/react";
 
 export async function loader({
     params,
@@ -20,9 +17,11 @@ export async function loader({
         throw new Response("Not Found", { status: 404 });
     }
 
+    // const userProfile = await getUserProfile(request);
+
     console.log(story);
 
-    return json({ story, user })
+    return json({ story })
 }
 
 export async function action({
@@ -41,6 +40,9 @@ export async function action({
     }
 
     const characterResponse = await createCharacter(request, Number(storyId), characterData);
+    if(!characterResponse.ok){
+        return redirect(`/story/${storyId}`);
+    }
 
     const success = {
         message: `Successfully added ${formData.get('name')} to story ${storyId}`,
@@ -52,11 +54,10 @@ export async function action({
 export default function Story(){
     const { story } = useLoaderData<typeof loader>();
     const actionData = useActionData<typeof action>();
-    const matches = useMatches();
 
     return (
         <div id="contact">
-            <ReverieNav user={user} />
+            <ReverieNav />
             <Link to="/home">Go Back to Home</Link>
             <h1>{story.title}</h1>
             <h2>{story.subtitle}</h2>
@@ -68,7 +69,11 @@ export default function Story(){
                 {story.characters && story.characters.length ? 
                     story.characters.map((character)=>{
                         return (
-                            <p>{character.name}</p>
+                            <p
+                                key={character.id}
+                            >
+                                {character.name}
+                            </p>
                         )
                     })
                 : <span> <em>No characters yet</em></span>}

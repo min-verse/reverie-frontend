@@ -1,11 +1,8 @@
 import { json, type MetaFunction, type LoaderFunctionArgs } from "@remix-run/node";
-import { Link, NavLink, useLoaderData, useMatches } from "@remix-run/react";
+import { Link, NavLink, useLoaderData, Outlet } from "@remix-run/react";
 import { getStories, StoryResponse } from "~/data";
-import { Outlet } from "@remix-run/react";
 import { useEffect, useState } from "react";
-import { user } from "~/data";
 import ReverieNav from "~/components/ReverieNav";
-import { requireUserSession } from "~/services/session.server";
 
 export const meta: MetaFunction = () => {
   return [
@@ -18,14 +15,14 @@ export const loader = async({
   request,
 }: LoaderFunctionArgs ) => {
   const stories: Array<StoryResponse> = await getStories(request);
+  // const userProfile = await getUserProfile(request);
   console.log(`here are the stories the home route loader: ${stories}`)
   // const stories = null;
-  return json({ stories, user });
+  return json({ stories });
 }
 
 export default function HomeIndex() {
   const { stories } = useLoaderData<typeof loader>();
-  const matches = useMatches();
   const [ searchField, setSearchField ] = useState('');
   const [ allStories, setStories ] = useState(stories);
 
@@ -44,7 +41,7 @@ export default function HomeIndex() {
 
   return (
     <>
-        <ReverieNav user={user} />
+        <ReverieNav />
         <Link
           to={'/write_story'}>
             Write a New Story

@@ -1,29 +1,28 @@
-import { json, type MetaFunction, type LoaderFunctionArgs, ActionFunctionArgs, redirect } from "@remix-run/node";
-import { Link, NavLink, useActionData, useLoaderData, useMatches, useNavigate } from "@remix-run/react";
-import { createStory, getStories } from "~/data";
-import { Outlet } from "@remix-run/react";
-import { useEffect, useState } from "react";
-import { user } from "~/data";
+import { json, type LoaderFunctionArgs, ActionFunctionArgs, redirect } from "@remix-run/node";
+import { Form, useActionData, useNavigate } from "@remix-run/react";
+import { createStory } from "~/data";
 import ReverieNav from "~/components/ReverieNav";
 import { requireUserSession } from "~/services/session.server";
-import { Form } from "@remix-run/react";
-import Tiptap from "~/components/Tiptap";
 
 
 export const loader = async({
   request,
 }: LoaderFunctionArgs ) => {
   await requireUserSession(request);
-  const stories = await getStories(request);
+
+  // const userProfile = await getUserProfile(request);
 
   // const stories = null;
-  return json({ stories, user });
+  return null;
 }
 
 export const action = async({
     request,
   }: ActionFunctionArgs ) => {
     const session = await requireUserSession(request);
+    if(!session){
+        return redirect("/unauthenticated");
+    }
 
     const formData = await request.formData();
     console.log(Object.fromEntries(formData));
@@ -50,12 +49,13 @@ export const action = async({
   }
 
 export default function WriteStory() {
+    // const { userProfile } = useLoaderData<typeof loader>();
     const navigate = useNavigate();
     const actionData = useActionData<typeof action>();
 
   return (
     <>
-        <ReverieNav user={user} />
+        <ReverieNav />
         {
             actionData && actionData?.storyResponse && actionData?.storyResponse?.error ?
             <p><span style={{color:'red'}}>{actionData?.storyResponse?.error}</span></p>
