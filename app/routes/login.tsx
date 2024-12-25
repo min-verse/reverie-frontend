@@ -59,24 +59,22 @@ export const action = async({
         return json({ response })
     }
 
-    if(response){
-        const text = await response.text();
-        console.log("Here are the headers");
-        console.log(...response.headers);
-        console.log(`This is the response status: ${response.status}`);
-        console.log(`The Response says this: ${text}`);
-    }
-
+    
     if(!response || !response.ok){
         console.log('Bad response received, not authenticated');
         return redirect('/unauthenticated');
     }
-
+    
     const setCookieHeader = response.headers.get('Set-Cookie');
-
+    
     if(!setCookieHeader){
         console.log('No Set-Cookie Header found');
         return redirect('/unauthenticated');
+    }
+
+    const responseBody = await response.json();
+    if(!responseBody){
+        throw redirect('/login');
     }
 
     const parsedResponseCookies = setCookie.parse(setCookie.splitCookiesString(setCookieHeader));
@@ -94,8 +92,14 @@ export const action = async({
     const { name, value, ...sessionIdCookieSerializeOptions } = sessionIdCookie;
     const session = await getSession(request.headers.get('Cookie'));
 
+
     // NOTE: name is 'sessionid' (supplied by Django), value is an encrypted value (also supplied by Django)
     session.set(name, value);
+
+
+    for(const key in responseBody){
+        session.set(key, responseBody[key])
+    }
 
     headers.append(
         'Set-Cookie',

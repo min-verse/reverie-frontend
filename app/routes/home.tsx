@@ -1,8 +1,10 @@
-import { json, type MetaFunction, type LoaderFunctionArgs } from "@remix-run/node";
+import { json, type MetaFunction, type LoaderFunctionArgs, SessionData } from "@remix-run/node";
 import { Link, NavLink, useLoaderData, Outlet } from "@remix-run/react";
-import { getStories, StoryResponse } from "~/data";
+import { getStories, retrieveUserDetails, StoryResponse } from "~/data";
 import { useEffect, useState } from "react";
 import ReverieNav from "~/components/ReverieNav";
+import { requireUserSession } from "~/services/session.server";
+import NewNewReverieNav from "~/components/NewNewReverieNav";
 
 export const meta: MetaFunction = () => {
   return [
@@ -14,15 +16,18 @@ export const meta: MetaFunction = () => {
 export const loader = async({
   request,
 }: LoaderFunctionArgs ) => {
+  const session: SessionData = await requireUserSession(request);
   const stories: Array<StoryResponse> = await getStories(request);
   // const userProfile = await getUserProfile(request);
+
+  const userProfile = await retrieveUserDetails(session);
   console.log(`here are the stories the home route loader: ${stories}`)
   // const stories = null;
-  return json({ stories });
+  return json({ stories, userProfile });
 }
 
 export default function HomeIndex() {
-  const { stories } = useLoaderData<typeof loader>();
+  const { stories, userProfile } = useLoaderData<typeof loader>();
   const [ searchField, setSearchField ] = useState('');
   const [ allStories, setStories ] = useState(stories);
 
@@ -41,6 +46,7 @@ export default function HomeIndex() {
 
   return (
     <>
+        <NewNewReverieNav userProfile={userProfile} />
         <ReverieNav />
         <Link
           to={'/write_story'}>

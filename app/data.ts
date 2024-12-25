@@ -1,5 +1,6 @@
 import setCookie from 'set-cookie-parser';
 import { getSession, requireUserSession } from "./services/session.server";
+import { SessionData } from '@remix-run/node';
 
 export interface Story {
     id: number,
@@ -190,6 +191,13 @@ export async function getUserProfile(request: Request){
     });
 
     return profileResponse;
+}
+
+export async function retrieveUserDetails(session: SessionData): Promise<UserProfile>{
+    return {
+        username: session.get('username'),
+        avatar_url: session.get('avatar_url')
+    }
 }
 
 // export async function getCharacters(query?: Number | null){
