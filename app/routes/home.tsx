@@ -2,7 +2,6 @@ import { json, type MetaFunction, type LoaderFunctionArgs, SessionData } from "@
 import { Link, NavLink, useLoaderData, Outlet } from "@remix-run/react";
 import { getStories, retrieveUserDetails, StoryResponse } from "~/data";
 import { useEffect, useState } from "react";
-import ReverieNav from "~/components/ReverieNav";
 import { requireUserSession } from "~/services/session.server";
 import NewNewReverieNav from "~/components/NewNewReverieNav";
 
@@ -47,7 +46,6 @@ export default function HomeIndex() {
   return (
     <>
         <NewNewReverieNav userProfile={userProfile} />
-        <ReverieNav />
         <Link
           to={'/write_story'}>
             Write a New Story

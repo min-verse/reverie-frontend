@@ -1,8 +1,9 @@
-import { ActionFunctionArgs, LoaderFunctionArgs, json, redirect } from "@remix-run/node";
+import { ActionFunctionArgs, LoaderFunctionArgs, SessionData, json, redirect } from "@remix-run/node";
 import invariant from "tiny-invariant";
-import { getStory, createCharacter, StoryResponse } from "~/data";
+import { getStory, createCharacter, StoryResponse, userProfile, retrieveUserDetails, UserProfile } from "~/data";
 import { useLoaderData, Form, Link, useActionData } from "@remix-run/react";
-import ReverieNav from "~/components/ReverieNav";
+import NewNewReverieNav from "~/components/NewNewReverieNav";
+import { requireUserSession } from "~/services/session.server";
 
 export async function loader({
     params,
@@ -10,6 +11,7 @@ export async function loader({
 }: LoaderFunctionArgs){
     const storyId = params.storyId;
     invariant(storyId, 'Missing storyId');
+    const session: SessionData = await requireUserSession(request);
 
     const story: StoryResponse = await getStory(request, Number(storyId));
 
@@ -17,11 +19,11 @@ export async function loader({
         throw new Response("Not Found", { status: 404 });
     }
 
-    // const userProfile = await getUserProfile(request);
+    const userProfile: UserProfile = await retrieveUserDetails(session);
 
     console.log(story);
 
-    return json({ story })
+    return json({ story, userProfile })
 }
 
 export async function action({
@@ -57,7 +59,7 @@ export default function Story(){
 
     return (
         <div id="contact">
-            <ReverieNav />
+            <NewNewReverieNav userProfile={userProfile} />
             <Link to="/home">Go Back to Home</Link>
             <h1>{story.title}</h1>
             <h2>{story.subtitle}</h2>

@@ -1,7 +1,6 @@
 import { json, LoaderFunctionArgs, SessionData } from "@remix-run/node";
 import { Outlet, useLoaderData } from "@remix-run/react";
 import NewNewReverieNav from "~/components/NewNewReverieNav";
-import ReverieNav from "~/components/ReverieNav";
 import { getUserProfile, retrieveUserDetails } from "~/data";
 import { requireUserSession } from "~/services/session.server";
 // import { requireUserSession } from "~/services/session.server";
@@ -23,7 +22,6 @@ export default function Profile(){
     return(
         <div>
             <NewNewReverieNav userProfile={localProfile} />
-            <ReverieNav />
             <div>
                 <img src={userProfile['avatar_url']} alt={`${userProfile['username']}'s avatar`} />
                 <p>{userProfile['username']}</p>
