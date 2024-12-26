@@ -1,8 +1,9 @@
 import { json, SessionData, type LoaderFunctionArgs } from "@remix-run/node";
-import { NavLink, useLoaderData } from "@remix-run/react";
+import { NavLink, Outlet, useLoaderData } from "@remix-run/react";
 import { getFeed, retrieveUserDetails, StoryResponse, UserProfile } from "~/data";
 import NewNewReverieNav from "~/components/NewNewReverieNav";
 import { requireUserSession } from "~/services/session.server";
+import { useEffect, useState } from "react";
 
 export const loader = async({
   request,
@@ -18,15 +19,37 @@ export const loader = async({
 
 export default function Feed() {
   const { stories, userProfile } = useLoaderData<typeof loader>();
+  const [ searchField, setSearchField ] = useState('');
+  const [ allStories, setStories ] = useState(stories);
+
+  const handleSearch = (event: React.FormEvent<HTMLInputElement>) => {
+    const value = event.currentTarget.value.toLocaleLowerCase();
+    setSearchField(value);
+  };
+
+  useEffect(()=>{
+    setStories(
+      stories.filter((story)=>{
+        return story.title.toLocaleLowerCase().includes(searchField)
+      })
+    );
+  },[stories, searchField]);
 
   return (
     <>
         <NewNewReverieNav userProfile={userProfile} />
-        {stories && stories.length ? stories.map((story)=>{
+        <div className="parent-container" style={{display: 'flex', flexDirection: 'row'}}>
+        <div className="smaller-child-column">
+            <input 
+                type="text" 
+                placeholder="Search Story by Title"
+                onChange={handleSearch}
+            />
+            {allStories && allStories.length ? allStories.map((story)=>{
             return (
                 <ul key={story.id}>
                 <NavLink 
-                  to={`/home/${story.id}`}
+                  to={`/feed/${story.id}`}
                   className={({isActive})=>
                     isActive ? 'bg-green-500 font-bold' : 'bg-blue-200 font-thin'
                   }
@@ -38,7 +61,13 @@ export default function Feed() {
                 <p>Summary: {story.summary}</p>
                 </ul>
             )
-            }) : <p>No public stories yet</p>}
+            }) : <p>No stories started yet</p>}
+        </div>
+        <div id="detail" className="smaller-child-column" style={{backgroundColor: 'lightblue'}}>
+            <p>Story Listed Here</p>
+            <Outlet />
+        </div>
+        </div>
     </>
   );
 }

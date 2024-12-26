@@ -128,6 +128,35 @@ export async function getStory(request: Request, query?: number | null){
     return { ...storyResponse }
 }
 
+export async function getFeedStory(request: Request, query?: number | null){
+    const session = await requireUserSession(request);
+
+    const storyResponse = await fetch(`http://localhost:8000/dream/story_feed_detail/${query}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            Cookie: Object.entries(session.data)
+                  .map(([key, value]) => `${key}=${value}`)
+                  .join('; '),
+            'X-CSRFToken': session.get('csrftoken')
+        }
+    }).then((res)=>{
+        if(!res.ok){
+            console.log(`ERROR CREATING STORY with status: ${res.status}`)
+        }else{
+            return res.json();
+        }
+    }).then((data)=>{
+        return data;
+    });
+
+    if(!storyResponse){
+        throw new Response("Not Found", { status: 404 });
+    }
+
+    return { ...storyResponse }
+}
+
 export async function getFeed(request: Request){
     const session = await requireUserSession(request);
 
