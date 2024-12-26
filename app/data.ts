@@ -38,6 +38,16 @@ export interface StoryParams {
     other_medium: string | null,
 }
 
+export interface StoryUpdateParams {
+    title?: string | null,
+    subtitle?: string | null,
+    plot?: string | null,
+    summary?: string | null,
+    privacy?: string | null,
+    medium?: string | null,
+    other_medium?: string | null,
+}
+
 export interface Character {
     id: number,
     storyId: number,
@@ -250,6 +260,36 @@ export async function createStory(request: Request, storyData: StoryParams){
     }).then((res)=>{
         if(!res.ok){
             throw new Error(`Error in creating story ${storyData['title']} with status: ${res.status}`)
+        }else{
+            return res.json();
+        }
+    }).then((data)=>{
+        return data;
+    }).catch((e)=>{
+        return {
+            error: e.message
+        }
+    });
+
+    return response;
+}
+
+export async function updateStory(request: Request, storyId: number, storyData: StoryUpdateParams){
+    const session = await requireUserSession(request);
+
+    const response = await fetch(`http://localhost:8000/dream/all_stories/${storyId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            Cookie: Object.entries(session.data)
+                  .map(([key, value]) => `${key}=${value}`)
+                  .join('; '),
+            'X-CSRFToken': session.get('csrftoken')
+        },
+        body: JSON.stringify(storyData)
+    }).then((res)=>{
+        if(!res.ok){
+            throw new Error(`Error in updating story ${storyId} with status: ${res.status}`)
         }else{
             return res.json();
         }

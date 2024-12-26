@@ -23,7 +23,12 @@ export default function Profile(){
         <div>
             <NewNewReverieNav userProfile={localProfile} />
             <div>
-                <img src={userProfile['avatar_url']} alt={`${userProfile['username']}'s avatar`} />
+                <img
+                    width={500}
+                    height={500}
+                    src={userProfile['avatar_url']}
+                    alt={`${userProfile['username']}'s avatar`}
+                />
                 <p>{userProfile['username']}</p>
             </div>
             <div>

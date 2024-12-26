@@ -1,17 +1,19 @@
 import { ActionFunctionArgs, LoaderFunctionArgs, json, redirect } from "@remix-run/node";
-import { getStory } from "~/data";
-import { Form, useNavigate } from "@remix-run/react";
-import { useLoaderData } from "@remix-run/react";
+import { getStory, updateStory, retrieveUserDetails, UserProfile } from "~/data";
+import { Form, useNavigate, useLoaderData, useActionData } from "@remix-run/react";
+import NewNewReverieNav from "~/components/NewNewReverieNav";
 import invariant from "tiny-invariant";
-import Tiptap from "~/components/Tiptap";
+import { requireUserSession, commitSession } from "~/services/session.server";
 
 export async function loader({
     params,
     request,
 }: LoaderFunctionArgs){
   const storyId = params.storyId;
+  const session = await requireUserSession(request);
   const story = await getStory(request, Number(storyId));
-  return json({ story })
+  const userProfile: UserProfile = await retrieveUserDetails(session);
+  return json({ story, userProfile })
 }
 
 export async function action({
@@ -19,18 +21,38 @@ export async function action({
     request
 }: ActionFunctionArgs){
     invariant(params.storyId, "Missing storyId param");
+    const session = await requireUserSession(request);
     const formData = await request.formData();
-    console.log(Object.fromEntries(formData));
 
-    return redirect(`/story/${params.storyId}`);
+    const updateResponse = await updateStory(request, Number(params.storyId), Object.fromEntries(formData));
+    if('error' in updateResponse){
+        return json({ error: updateResponse['error']} );
+    }
+
+    session.flash('updateStorySuccess', `Successfully updated story ${params.storyId}`);
+
+    return redirect(`/story/${params.storyId}`, { 
+        headers: {
+            "Set-Cookie": await commitSession(session)
+        }
+    });
 }
 
 export default function StoryEdit(){
-    const { story } = useLoaderData<typeof loader>();
+    const { story, userProfile } = useLoaderData<typeof loader>();
+    const actionData = useActionData<typeof action>();
+
     const navigate = useNavigate();
 
     return(
         <>
+            <NewNewReverieNav userProfile={userProfile} />
+            {
+                actionData && actionData?.error ?
+                <p><span style={{color:'red'}}>{actionData?.error}</span></p>
+                :
+                null
+            }
             <Form key={story.id} method="post">
                 <label>
                     <span>Title</span>
@@ -70,15 +92,6 @@ export default function StoryEdit(){
                         />
                     
                 </label>
-                <p>
-                    <label>
-                        <p>Text Editor</p>
-                        <Tiptap
-                            key="plot-tiptap"
-                            content={story.plot}
-                        />
-                    </label>
-                </p>
                 <label>
                     <span>Medium</span>
                     <select name="medium" defaultValue={story.medium}>

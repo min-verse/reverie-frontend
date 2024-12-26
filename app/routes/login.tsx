@@ -21,9 +21,9 @@ export const loader = async({
         return redirect('/home');
     }
 
-    const message = session.get("registerSuccess") || null;
+    const flashMessage = session.get("registerSuccess") || null;
 
-    return json({ message }, {
+    return json({ flashMessage }, {
         headers: {
             'Set-Cookie': await commitSession(session)
         }
@@ -113,14 +113,14 @@ export const action = async({
 };
 
 export default function Login(){
-    const { message } = useLoaderData<typeof loader>();
+    const { flashMessage } = useLoaderData<typeof loader>();
     const actionData = useActionData<typeof action>();
 
     return(
         <>
             {
-                message ?
-                    <p><span style={{color:'green'}}>{message}</span></p>
+                flashMessage ?
+                    <p><span style={{color:'green'}}>{flashMessage}</span></p>
                 :
                 null
             }

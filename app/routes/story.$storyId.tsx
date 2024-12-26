@@ -1,9 +1,9 @@
-import { ActionFunctionArgs, LoaderFunctionArgs, SessionData, json, redirect } from "@remix-run/node";
+import { ActionFunctionArgs, LoaderFunctionArgs, json, redirect } from "@remix-run/node";
 import invariant from "tiny-invariant";
-import { getStory, createCharacter, StoryResponse, userProfile, retrieveUserDetails, UserProfile } from "~/data";
+import { getStory, createCharacter, StoryResponse, retrieveUserDetails, UserProfile } from "~/data";
 import { useLoaderData, Form, Link, useActionData } from "@remix-run/react";
 import NewNewReverieNav from "~/components/NewNewReverieNav";
-import { requireUserSession } from "~/services/session.server";
+import { requireUserSession, commitSession } from "~/services/session.server";
 
 export async function loader({
     params,
@@ -11,7 +11,7 @@ export async function loader({
 }: LoaderFunctionArgs){
     const storyId = params.storyId;
     invariant(storyId, 'Missing storyId');
-    const session: SessionData = await requireUserSession(request);
+    const session = await requireUserSession(request);
 
     const story: StoryResponse = await getStory(request, Number(storyId));
 
@@ -19,11 +19,16 @@ export async function loader({
         throw new Response("Not Found", { status: 404 });
     }
 
+    const flashMessage = session.get("updateStorySuccess") || null;
     const userProfile: UserProfile = await retrieveUserDetails(session);
 
     console.log(story);
 
-    return json({ story, userProfile })
+    return json({ story, flashMessage, userProfile }, {
+        headers: {
+            'Set-Cookie': await commitSession(session)
+        }
+    })
 }
 
 export async function action({
@@ -54,12 +59,18 @@ export async function action({
 }
 
 export default function Story(){
-    const { story } = useLoaderData<typeof loader>();
+    const { story, flashMessage, userProfile } = useLoaderData<typeof loader>();
     const actionData = useActionData<typeof action>();
 
     return (
         <div id="contact">
             <NewNewReverieNav userProfile={userProfile} />
+            {
+                flashMessage ?
+                    <p><span style={{color:'green'}}>{flashMessage}</span></p>
+                :
+                null
+            }
             <Link to="/home">Go Back to Home</Link>
             <h1>{story.title}</h1>
             <h2>{story.subtitle}</h2>
