@@ -232,6 +232,36 @@ export async function getUserProfile(request: Request){
     return profileResponse;
 }
 
+export async function updateUserProfile(request: Request, new_avatar_url: string){
+    const session = await requireUserSession(request);
+
+    const profileResponse = await fetch(`http://localhost:8000/profile/`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            Cookie: Object.entries(session.data)
+                  .map(([key, value]) => `${key}=${value}`)
+                  .join('; '),
+            'X-CSRFToken': session.get('csrftoken')
+        },
+        body: JSON.stringify({
+            avatar_url: new_avatar_url
+        })
+    }).then((res)=>{
+        if(!res.ok){
+            throw new Error(`ERROR UPDATING USER PROFILE with status: ${res.status}`)
+        }else{
+            return res.json();
+        }
+    }).then((data)=>{
+        return data;
+    }).catch((e)=>{
+        return { error: e.message };
+    });
+
+    return profileResponse;
+}
+
 export async function retrieveUserDetails(session: SessionData): Promise<UserProfile>{
     return {
         username: session.get('username'),

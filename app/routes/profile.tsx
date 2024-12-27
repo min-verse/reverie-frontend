@@ -1,27 +1,39 @@
-import { json, LoaderFunctionArgs, SessionData } from "@remix-run/node";
+import { json, LoaderFunctionArgs } from "@remix-run/node";
 import { Outlet, useLoaderData } from "@remix-run/react";
 import NewNewReverieNav from "~/components/NewNewReverieNav";
 import { getUserProfile, retrieveUserDetails } from "~/data";
-import { requireUserSession } from "~/services/session.server";
+import { commitSession, requireUserSession } from "~/services/session.server";
 // import { requireUserSession } from "~/services/session.server";
 
 export async function loader({
     request
 }: LoaderFunctionArgs){
-    const session: SessionData = await requireUserSession(request);
+    const session = await requireUserSession(request);
 
     const localProfile = await retrieveUserDetails(session);
     const userProfile = await getUserProfile(request);
 
-    return json({ userProfile, localProfile });
+    const flashMessage = session.get("updateStorySuccess") || null;
+
+    return json({ userProfile, localProfile, flashMessage }, {
+        headers: {
+            'Set-Cookie': await commitSession(session)
+        }
+    });
 }
 
 export default function Profile(){
-    const { userProfile, localProfile } = useLoaderData<typeof loader>();
+    const { userProfile, localProfile, flashMessage } = useLoaderData<typeof loader>();
 
     return(
         <div>
             <NewNewReverieNav userProfile={localProfile} />
+            {
+                flashMessage ?
+                    <p><span style={{color:'green'}}>{flashMessage}</span></p>
+                :
+                null
+            }
             <div>
                 <img
                     width={500}
