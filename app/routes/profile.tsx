@@ -1,5 +1,5 @@
 import { json, LoaderFunctionArgs } from "@remix-run/node";
-import { Outlet, useLoaderData } from "@remix-run/react";
+import { Link, Outlet, useLoaderData } from "@remix-run/react";
 import NewNewReverieNav from "~/components/NewNewReverieNav";
 import { getUserProfile, retrieveUserDetails } from "~/data";
 import { commitSession, requireUserSession } from "~/services/session.server";
@@ -47,6 +47,7 @@ export default function Profile(){
                 {
                     userProfile && <p style={{color:'blue'}}>This is {userProfile['first_name']} {userProfile['last_name']} or {userProfile['username']}&apos;s profile</p>
                 }
+                <Link to={`/profile/edit`}>Edit Avatar URL</Link>
                 <Outlet />
             </div>
         </div>

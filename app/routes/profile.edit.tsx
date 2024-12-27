@@ -1,5 +1,5 @@
 import { ActionFunctionArgs, LoaderFunctionArgs, json, redirect } from "@remix-run/node";
-import { retrieveUserDetails, UserProfile, updateUserProfile } from "~/data";
+import { retrieveUserDetails, UserProfile, UserProfilePayload, updateUserProfile } from "~/data";
 import { Form, useNavigate, useLoaderData, useActionData } from "@remix-run/react";
 import NewNewReverieNav from "~/components/NewNewReverieNav";
 import { requireUserSession, commitSession } from "~/services/session.server";
@@ -18,16 +18,27 @@ export async function action({
     const session = await requireUserSession(request);
     const formData = await request.formData();
 
-    if(!formData.get('avatar_url')){
+    const firstName = String(formData.get('firstName'));
+    const lastName = String(formData.get('lastName'));
+    const avatarUrl = String(formData.get('avatarUrl'));
+
+    if(!avatarUrl){
         return json({ error: 'No URL provided for new avatar picture' });
     }
 
-    const updateResponse = await updateUserProfile(request, String(formData.get('avatar_url')));
+    const profileUpdatePayload: UserProfilePayload = {
+        first_name: firstName,
+        last_name: lastName,
+        avatar_url: avatarUrl,
+    }
+
+    const updateResponse = await updateUserProfile(request, profileUpdatePayload);
 
     if('error' in updateResponse){
         return json({ error: updateResponse['error']} );
     }
 
+    session.set('avatar_url', String(formData.get('avatarUrl')))
     session.flash('updateProfileSuccess', `Successfully updated user's profile`);
 
     return redirect(`/profile`, { 
@@ -53,6 +64,22 @@ export default function StoryEdit(){
                 null
             }
             <Form key={userProfile.username} method="post">
+                <label>
+                    <span>Edit First Name</span>
+                    <input
+                        name="firstName"
+                        placeholder="Change your profile's first name"
+                        type="text"
+                    />
+                </label>
+                <label>
+                    <span>Edit Last Name</span>
+                    <input
+                        name="lastName"
+                        placeholder="Change your profile's first name"
+                        type="text"
+                    />
+                </label>
                 <label>
                     <span>Avatar URL</span>
                     <input

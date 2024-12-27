@@ -76,6 +76,12 @@ export interface UserProfile {
     avatar_url: string | null,
 }
 
+export interface UserProfilePayload {
+    first_name?: string,
+    last_name?: string,
+    avatar_url: string,
+}
+
 export interface RegisterParams {
     username: string,
     email: string,
@@ -232,7 +238,7 @@ export async function getUserProfile(request: Request){
     return profileResponse;
 }
 
-export async function updateUserProfile(request: Request, new_avatar_url: string){
+export async function updateUserProfile(request: Request, userUpdatePayload: UserProfilePayload){
     const session = await requireUserSession(request);
 
     const profileResponse = await fetch(`http://localhost:8000/profile/`, {
@@ -244,9 +250,7 @@ export async function updateUserProfile(request: Request, new_avatar_url: string
                   .join('; '),
             'X-CSRFToken': session.get('csrftoken')
         },
-        body: JSON.stringify({
-            avatar_url: new_avatar_url
-        })
+        body: JSON.stringify(userUpdatePayload)
     }).then((res)=>{
         if(!res.ok){
             throw new Error(`ERROR UPDATING USER PROFILE with status: ${res.status}`)
